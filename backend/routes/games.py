@@ -14,6 +14,7 @@ from ..services.game_service import (
     questions_for_game,
 )
 from ..services.question_translations import english_question
+from ..services.prizes import PRIZES, prize_for_correct_answers
 from .common import (
     commit_or_error,
     json_body,
@@ -32,7 +33,6 @@ GAME_FIELDS = {
     "finished_at",
 }
 GAME_STATUSES = {"in_progress", "completed", "abandoned"}
-PRIZES = [100, 200, 300, 500, 1000, 2000, 4000, 8000, 16000, 32000, 64000, 125000, 250000, 500000, 1000000]
 
 
 def serialize_game(game: Game) -> dict[str, object]:
@@ -204,13 +204,14 @@ def answer_game(game_id: int):
     correct = answer == correct_answer
     if correct:
         game.current_question_number += 1
-        game.score = PRIZES[min(index, len(PRIZES) - 1)]
+        game.score = prize_for_correct_answers(index + 1)
         finished = game.current_question_number >= min(len(questions), len(PRIZES))
         if finished:
             game.status = "completed"
             game.finished_at = datetime.now(timezone.utc)
     else:
-        game.score = 32000 if index >= 10 else 1000 if index >= 5 else 0
+        # Keep the prize from questions already answered correctly.
+        game.score = prize_for_correct_answers(index)
         game.status = "completed"
         game.finished_at = datetime.now(timezone.utc)
         finished = True
@@ -238,7 +239,8 @@ def timeout_game(game_id: int):
     index = game.current_question_number
     if index >= len(questions) or questions[index].id != question_id:
         return jsonify(error="Question is not the current question"), 400
-    game.score = 32000 if index >= 10 else 1000 if index >= 5 else 0
+    # Timeout ends this question but does not erase previously earned prizes.
+    game.score = prize_for_correct_answers(index)
     game.status = "completed"
     game.finished_at = datetime.now(timezone.utc)
     session.commit()

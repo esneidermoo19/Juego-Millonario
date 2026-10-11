@@ -212,22 +212,26 @@ async function handleQuestionTimeout(questionId) {
 }
 
 function showTimeoutLoss(prize) {
+  const finalPrize = Math.max(Number(prize) || 0, Number(gameState.currentPrize) || 0);
   sessionStorage.setItem('game_result', JSON.stringify({
     type: 'loss',
     reason: 'timeout',
     player: gameState.playerName,
-    prize: formatCurrency(prize || 0),
-    cleared: gameState.questionIndex + 1
+    prize: formatCurrency(finalPrize),
+    cleared: gameState.questionIndex + 1,
+    correctlyAnswered: gameState.questionIndex
   }));
   setTimeout(() => { window.location.href = 'results.html'; }, ANSWER_FEEDBACK_MS);
 }
 
 function showLossResult(prize) {
+  const finalPrize = Math.max(Number(prize) || 0, Number(gameState.currentPrize) || 0);
   sessionStorage.setItem('game_result', JSON.stringify({
     type: 'loss',
     player: gameState.playerName,
-    prize: formatCurrency(prize || 0),
-    cleared: gameState.questionIndex
+    prize: formatCurrency(finalPrize),
+    cleared: gameState.questionIndex + 1,
+    correctlyAnswered: gameState.questionIndex
   }));
   setTimeout(() => { window.location.href = 'results.html'; }, ANSWER_FEEDBACK_MS);
 }
@@ -460,6 +464,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     return;
   }
 
+  if (localStorage.getItem('mute_audio') !== '1' && window.ContestMusic) {
+    window.ContestMusic.start();
+  }
+
   // 2. Elementos DOM
   const playerDisplay = document.getElementById('player-display');
   if (playerDisplay) playerDisplay.textContent = gameState.playerName;
@@ -512,8 +520,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     btnSoundGame.textContent = localStorage.getItem('mute_audio') === '1' ? '🔇' : '🔊';
     btnSoundGame.addEventListener('click', () => {
       const muted = localStorage.getItem('mute_audio') === '1';
-      localStorage.setItem('mute_audio', muted ? '0' : '1');
-      btnSoundGame.textContent = muted ? '🔊' : '🔇';
+      const nextMuted = !muted;
+      localStorage.setItem('mute_audio', nextMuted ? '1' : '0');
+      if (window.ContestMusic) {
+        if (nextMuted) window.ContestMusic.setMuted(true);
+        else window.ContestMusic.start();
+      }
+      btnSoundGame.textContent = nextMuted ? '🔇' : '🔊';
     });
   }
 });
