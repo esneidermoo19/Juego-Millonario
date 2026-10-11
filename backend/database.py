@@ -6,7 +6,8 @@ from flask import Flask, current_app, g
 from sqlalchemy import create_engine, event
 from sqlalchemy.orm import Session, sessionmaker
 
-from .models import Base, Question
+from .models import Base, Game, Question
+from .services.prizes import prize_for_correct_answers
 
 
 STARTER_QUESTIONS = [
@@ -132,9 +133,24 @@ def init_database(app: Flask) -> None:
         bind=engine, expire_on_commit=False
     )
     Base.metadata.create_all(engine)
+    # Repair completed games written by the previous safe-level payout logic.
+    factory = app.extensions["database_session_factory"]
+    with factory() as session:
+        repaired = False
+        completed_games = session.query(Game).filter(
+            Game.status == "completed",
+            Game.current_question_number > 0,
+        )
+        for game in completed_games:
+            earned_prize = prize_for_correct_answers(game.current_question_number)
+            if game.score < earned_prize:
+                game.score = earned_prize
+                repaired = True
+        if repaired:
+            session.commit()
+
     # La base de datos local del juego queda lista para usar desde la primera ejecución.
     if database_url == "sqlite:///backend/instance/millionaire.db":
-        factory = app.extensions["database_session_factory"]
         with factory() as session:
             existing_texts = {
                 text for (text,) in session.query(Question.text).all()
