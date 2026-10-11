@@ -391,6 +391,12 @@
   justify-content: center;
 }
 
+.presenter-art-picture {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
 /* Figura recortada del personaje 2D transparente */
 .presenter-art {
   display: block;
