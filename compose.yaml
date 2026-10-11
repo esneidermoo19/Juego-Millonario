@@ -1,0 +1,17 @@
+services:
+  millionaire:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      PORT: "5000"
+      WEB_CONCURRENCY: ${WEB_CONCURRENCY:-1}
+      DATABASE_URL: ${DATABASE_URL:-sqlite:///backend/instance/millionaire.db}
+    expose:
+      - "5000"
+    volumes:
+      - millionaire-data:/app/backend/instance
+
+volumes:
+  millionaire-data:

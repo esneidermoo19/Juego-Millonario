@@ -17,6 +17,9 @@ htmlcov/
 dist/
 build/
 
+# Local runtime database (created and seeded automatically by the backend)
+backend/instance/*.db
+
 # Editor temporary files
 *.swp
 *.swo

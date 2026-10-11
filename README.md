@@ -40,3 +40,16 @@ python -m backend.app
 ```
 
 La base de datos SQLite se crea en `backend/instance/millionaire.db` y se completa con preguntas de ejemplo al iniciar.
+
+## Docker y Coolify
+
+El archivo `compose.yaml` construye el contenedor, sirve el frontend y la API desde el mismo proceso y conserva SQLite en un volumen Docker. Para desplegar en Coolify:
+
+1. Crea un recurso **Docker Compose** desde este repositorio y usa `compose.yaml` en la raíz.
+2. Asigna el dominio al servicio `millionaire`, puerto interno **5000**.
+3. Conserva el volumen Compose `millionaire-data`, montado en `/app/backend/instance`; ahí persiste la base SQLite entre despliegues.
+4. En las variables de entorno de Coolify configura `DATABASE_URL=sqlite:///backend/instance/millionaire.db`. `PORT` ya queda fijado en `5000`; `WEB_CONCURRENCY` es opcional y por defecto vale `1`.
+
+La imagen excluye la base local y los archivos `.env`; si el volumen está vacío, el backend crea el esquema e inserta preguntas iniciales al arrancar. Configura secretos desde las variables de entorno de Coolify. El archivo `.env.example` solo contiene la URL local de SQLite.
+
+Coolify conecta su proxy al puerto expuesto del servicio; no hace falta publicar el puerto del contenedor directamente en el host.
