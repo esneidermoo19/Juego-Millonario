@@ -4,6 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>¿Quién Quiere Ser Millonario? — Inicio</title>
+  <link rel="preload" as="image" href="assets/images/escenario-tv-limpio.webp" type="image/webp" fetchpriority="high">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap">
   <link rel="stylesheet" href="css/main.css">
   <link rel="stylesheet" href="css/animations.css">
 </head>
@@ -73,7 +77,10 @@
         <div class="characters-grid" id="characters-selector" role="radiogroup" aria-label="Seleccionar presentador">
           <button type="button" class="character-card active" data-char="clasico" role="radio" aria-checked="true">
             <div class="character-avatar-wrap">
-              <img src="assets/images/presentador-clasico.png" alt="El Anfitrión" class="character-avatar-img">
+              <picture>
+                <source type="image/webp" srcset="assets/images/presentador-clasico.webp">
+                <img src="assets/images/presentador-clasico.png" alt="El Anfitrión" class="character-avatar-img" loading="lazy" decoding="async">
+              </picture>
             </div>
             <div class="character-info">
               <span class="character-name">El Anfitrión</span>
@@ -83,7 +90,10 @@
 
           <button type="button" class="character-card" data-char="terminator" role="radio" aria-checked="false">
             <div class="character-avatar-wrap">
-              <img src="assets/images/presentador-terminator.png" alt="Terminator T-800" class="character-avatar-img">
+              <picture>
+                <source type="image/webp" srcset="assets/images/presentador-terminator.webp">
+                <img src="assets/images/presentador-terminator.png" alt="Terminator T-800" class="character-avatar-img" loading="lazy" decoding="async">
+              </picture>
             </div>
             <div class="character-info">
               <span class="character-name">Terminator</span>
@@ -93,7 +103,10 @@
 
           <button type="button" class="character-card" data-char="masterchief" role="radio" aria-checked="false">
             <div class="character-avatar-wrap">
-              <img src="assets/images/presentador-masterchief.png" alt="Master Chief" class="character-avatar-img">
+              <picture>
+                <source type="image/webp" srcset="assets/images/presentador-masterchief.webp">
+                <img src="assets/images/presentador-masterchief.png" alt="Master Chief" class="character-avatar-img" loading="lazy" decoding="async">
+              </picture>
             </div>
             <div class="character-info">
               <span class="character-name">Master Chief</span>
@@ -103,7 +116,10 @@
 
           <button type="button" class="character-card" data-char="james" role="radio" aria-checked="false">
             <div class="character-avatar-wrap">
-              <img src="assets/images/presentador-james.png" alt="James Rodríguez" class="character-avatar-img">
+              <picture>
+                <source type="image/webp" srcset="assets/images/presentador-james.webp">
+                <img src="assets/images/presentador-james.png" alt="James Rodríguez" class="character-avatar-img" loading="lazy" decoding="async">
+              </picture>
             </div>
             <div class="character-info">
               <span class="character-name">James R.</span>

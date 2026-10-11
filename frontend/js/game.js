@@ -248,14 +248,34 @@ function getSelectedPresenter() {
 function applySelectedPresenter() {
   const charKey = getSelectedPresenter();
   const charImages = {
-    clasico: 'assets/images/presentador-clasico.png',
-    terminator: 'assets/images/presentador-terminator.png',
-    masterchief: 'assets/images/presentador-masterchief.png',
-    james: 'assets/images/presentador-james.png'
+    clasico: {
+      webp: 'assets/images/presentador-clasico.webp',
+      png: 'assets/images/presentador-clasico.png'
+    },
+    terminator: {
+      webp: 'assets/images/presentador-terminator.webp',
+      png: 'assets/images/presentador-terminator.png'
+    },
+    masterchief: {
+      webp: 'assets/images/presentador-masterchief.webp',
+      png: 'assets/images/presentador-masterchief.png'
+    },
+    james: {
+      webp: 'assets/images/presentador-james.webp',
+      png: 'assets/images/presentador-james.png'
+    }
   };
   const img = document.querySelector('.presenter-art');
   if (img) {
-    img.src = charImages[charKey] || charImages.clasico;
+    const image = charImages[charKey] || charImages.clasico;
+    const source = img.closest('picture')?.querySelector('source[type="image/webp"]');
+    img.onerror = () => {
+      img.onerror = null;
+      if (source) source.removeAttribute('srcset');
+      img.src = image.png;
+    };
+    if (source) source.srcset = image.webp;
+    img.src = image.png;
     const names = {
       clasico: 'El Anfitrión Clásico',
       terminator: 'Terminator T-800',
