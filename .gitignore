@@ -23,3 +23,6 @@ backend/instance/*.db
 # Editor temporary files
 *.swp
 *.swo
+
+# Voces de Piper (se descargan al iniciar el juego, ~126 MB)
+backend/tts_voices/

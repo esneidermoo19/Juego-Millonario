@@ -267,6 +267,10 @@ function applySelectedPresenter() {
     james: {
       webp: 'assets/images/presentador-james.webp',
       png: 'assets/images/presentador-james.png'
+    },
+    cr7: {
+      webp: 'assets/images/presentador-cr7.webp',
+      png: 'assets/images/presentador-cr7.png'
     }
   };
   const img = document.querySelector('.presenter-art');
@@ -284,7 +288,8 @@ function applySelectedPresenter() {
       clasico: 'El Anfitrión Clásico',
       terminator: 'Terminator T-800',
       masterchief: 'Master Chief (Spartan 117)',
-      james: 'James Rodríguez'
+      james: 'James Rodríguez',
+      cr7: 'Cristiano Ronaldo'
     };
     img.alt = names[charKey] || 'Presentador del concurso';
   }
@@ -440,6 +445,41 @@ function setPresenterMessage(key) {
       friend: isEnglish
         ? 'Passing the ball to your teammate for assistance.'
         : 'Pase al compañero: vamos a llamar a tu amigo.'
+    },
+    cr7: {
+      welcome: isEnglish
+        ? `Welcome, ${name}! Hard work beats talent. Answer all 15 questions!`
+        : `¡Bienvenido, ${name}! El trabajo duro vence al talento. ¡Responde las 15 preguntas!`,
+      newquestion: isEnglish
+        ? `Next challenge, ${name}. Stay focused, like a champion!`
+        : `Siguiente reto, ${name}. ¡Concentración de campeón!`,
+      urgent10: isEnglish
+        ? `Hurry up, ${name}! Time is running out!`
+        : `¡Apúrate ${name}, se agota el tiempo!`,
+      urgent5: isEnglish
+        ? `Last seconds, ${name}! Take the shot!`
+        : `¡Últimos segundos, ${name}! ¡Dispara ya!`,
+      correct: isEnglish
+        ? 'Siuuu! You move on to the next question.'
+        : '¡Siuuu! Pasas a la siguiente pregunta.',
+      incorrect: isEnglish
+        ? 'Unfortunately, that was not the correct option. Champions always come back!'
+        : 'Lamentablemente esa no era la opción correcta. ¡Los campeones siempre vuelven!',
+      win: isEnglish
+        ? `Siuuu! ${name}, 15 out of 15. You are a millionaire!`
+        : `¡Siuuu! ${name}, 15 de 15. ¡Eres millonario!`,
+      timeout: isEnglish
+        ? `The final whistle blew, ${name}. Thanks for playing.`
+        : `¡Se acabó el partido, ${name}! Gracias por jugar.`,
+      fifty: isEnglish
+        ? '50:50: two defenders dribbled past. Only two options left!'
+        : 'Comodín 50:50: dos defensas regateados. ¡Quedan dos opciones!',
+      audience: isEnglish
+        ? 'The fans have spoken. Check the results!'
+        : 'La afición ya votó. ¡Mira los resultados!',
+      friend: isEnglish
+        ? 'Calling your teammate for an assist.'
+        : 'Llamando a tu compañero para que te dé la asistencia.'
     }
   };
 
@@ -450,6 +490,24 @@ function setPresenterMessage(key) {
   el.textContent = messages[key] || characterMessages.clasico[key] || key;
   void el.offsetWidth;
   el.classList.add('message-update');
+
+  // La bienvenida y el anuncio de pregunta se leen junto con la pregunta (speakCurrentQuestion).
+  if (key !== 'welcome' && key !== 'newquestion' && window.PresenterVoice) {
+    window.PresenterVoice.speak(el.textContent, charKey, isEnglish ? 'en' : 'es');
+  }
+}
+
+// El presentador lee su comentario, la pregunta y las opciones en voz alta.
+function speakCurrentQuestion() {
+  const q = gameState.questions[gameState.questionIndex];
+  if (!q || !window.PresenterVoice) return;
+  const isEnglish = window.getLanguage && window.getLanguage() === 'en';
+  const intro = document.getElementById('presenter-message')?.textContent || '';
+  const options = ['A', 'B', 'C', 'D']
+    .filter(letter => q.options && q.options[letter])
+    .map(letter => `${letter}: ${q.options[letter]}`)
+    .join('. ');
+  window.PresenterVoice.speak(`${intro} ${q.question} ${options}.`, getSelectedPresenter(), isEnglish ? 'en' : 'es');
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -526,6 +584,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (nextMuted) window.ContestMusic.setMuted(true);
         else window.ContestMusic.start();
       }
+      if (nextMuted && window.PresenterVoice) window.PresenterVoice.stop();
       btnSoundGame.textContent = nextMuted ? '🔇' : '🔊';
     });
   }
@@ -579,6 +638,7 @@ function setupLanguageChange() {
       gameState.questions = data.questions || [];
       renderCurrentQuestion();
       setPresenterMessage(gameState.presenterMessageKey || 'welcome');
+      speakCurrentQuestion();
     } catch (error) {
       if (requestNumber !== languageRequest) return;
       showToast(error.message || 'Could not load questions in the selected language.', 'error');
@@ -592,7 +652,8 @@ function renderCurrentQuestion() {
   if (!q) return;
 
   gameState.answering = false;
-  if (gameState.timerQuestionId !== q.id) {
+  const isNewQuestion = gameState.timerQuestionId !== q.id;
+  if (isNewQuestion) {
     startQuestionTimer(q.id);
     setPresenterMessage(gameState.questionIndex === 0 ? 'welcome' : 'newquestion');
   }
@@ -642,6 +703,8 @@ function renderCurrentQuestion() {
     btn.className = 'option-btn';
     btn.disabled = false;
   });
+
+  if (isNewQuestion) speakCurrentQuestion();
 }
 
 // Configurar Respuestas (A–D)
@@ -661,6 +724,7 @@ function setupOptionListeners() {
       gameState.answering = true;
       window.clearInterval(gameState.timerInterval);
       gameState.timerInterval = null;
+      if (window.PresenterVoice) window.PresenterVoice.stop();
       SoundFX.click();
 
       const selectedLetter = btn.getAttribute('data-option');

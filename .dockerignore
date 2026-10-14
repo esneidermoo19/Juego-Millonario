@@ -11,3 +11,4 @@ htmlcov
 .env
 .env.*
 backend/instance/*.db
+backend/tts_voices

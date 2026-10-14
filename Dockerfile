@@ -8,13 +8,19 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
+# Motor de voz para que los presentadores lean las preguntas (/api/tts).
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends espeak-ng \
+    && rm -rf /var/lib/apt/lists/*
+
 COPY backend/requirements.txt backend/requirements.txt
 COPY backend/requirements-docker.txt backend/requirements-docker.txt
 RUN python -m pip install --no-cache-dir -r backend/requirements-docker.txt
 
 COPY backend/ backend/
 COPY frontend/ frontend/
-RUN mkdir -p backend/instance
+RUN mkdir -p backend/instance \
+    && python -m piper.download_voices --data-dir backend/tts_voices es_MX-ald-medium en_US-ryan-medium
 
 EXPOSE 5000
 
