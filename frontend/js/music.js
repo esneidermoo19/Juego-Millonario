@@ -1,8 +1,11 @@
 /**
- * Fondo musical original y ligero para el concurso.
- * Se genera con Web Audio API para evitar una descarga de audio pesada.
+ * Fondo musical del concurso.
+ * Reproduce assets/audio/tema-principal.mp3 si existe (debe ser libre de derechos);
+ * si no está disponible, genera un fondo original con Web Audio API.
  */
 (() => {
+  const TRACK_URL = 'assets/audio/tema-principal.mp3';
+  const TRACK_VOLUME = 0.5;
   const MEASURE_SECONDS = 4;
   const chords = [
     { pad: [110, 164.81, 220], notes: [659.25, 783.99, 880, 783.99, 659.25, 587.33, 659.25, 783.99] },
@@ -17,6 +20,8 @@
   let measureIndex = 0;
   let requested = false;
   let muted = localStorage.getItem('mute_audio') === '1';
+  let track = null;
+  let trackFailed = false;
 
   function ensureContext() {
     if (context) return context;
@@ -69,11 +74,33 @@
     measureIndex += 1;
   }
 
+  // Intenta usar el archivo de audio; devuelve false si no hay archivo disponible.
+  function startTrack() {
+    if (trackFailed) return false;
+    if (!track) {
+      track = new Audio(TRACK_URL);
+      track.loop = true;
+      track.volume = TRACK_VOLUME;
+      track.addEventListener('error', () => {
+        trackFailed = true;
+        track = null;
+        if (requested && !muted) startSynth();
+      }, { once: true });
+    }
+    track.play().catch(() => {});
+    return true;
+  }
+
   function start() {
     if (muted) return;
+    requested = true;
+    if (startTrack()) return;
+    startSynth();
+  }
+
+  function startSynth() {
     try {
       if (!ensureContext()) return;
-      requested = true;
       if (context.state === 'suspended') context.resume().catch(() => {});
       master.gain.cancelScheduledValues(context.currentTime);
       master.gain.setTargetAtTime(0.32, context.currentTime, 0.35);
@@ -86,6 +113,7 @@
   function setMuted(nextMuted) {
     muted = Boolean(nextMuted);
     if (muted) {
+      if (track) track.pause();
       if (master && context) {
         master.gain.cancelScheduledValues(context.currentTime);
         master.gain.setTargetAtTime(0.0001, context.currentTime, 0.08);
