@@ -490,24 +490,6 @@ function setPresenterMessage(key) {
   el.textContent = messages[key] || characterMessages.clasico[key] || key;
   void el.offsetWidth;
   el.classList.add('message-update');
-
-  // La bienvenida y el anuncio de pregunta se leen junto con la pregunta (speakCurrentQuestion).
-  if (key !== 'welcome' && key !== 'newquestion' && window.PresenterVoice) {
-    window.PresenterVoice.speak(el.textContent, charKey, isEnglish ? 'en' : 'es');
-  }
-}
-
-// El presentador lee su comentario, la pregunta y las opciones en voz alta.
-function speakCurrentQuestion() {
-  const q = gameState.questions[gameState.questionIndex];
-  if (!q || !window.PresenterVoice) return;
-  const isEnglish = window.getLanguage && window.getLanguage() === 'en';
-  const intro = document.getElementById('presenter-message')?.textContent || '';
-  const options = ['A', 'B', 'C', 'D']
-    .filter(letter => q.options && q.options[letter])
-    .map(letter => `${letter}: ${q.options[letter]}`)
-    .join('. ');
-  window.PresenterVoice.speak(`${intro} ${q.question} ${options}.`, getSelectedPresenter(), isEnglish ? 'en' : 'es');
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -584,7 +566,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (nextMuted) window.ContestMusic.setMuted(true);
         else window.ContestMusic.start();
       }
-      if (nextMuted && window.PresenterVoice) window.PresenterVoice.stop();
       btnSoundGame.textContent = nextMuted ? '🔇' : '🔊';
     });
   }
@@ -638,7 +619,6 @@ function setupLanguageChange() {
       gameState.questions = data.questions || [];
       renderCurrentQuestion();
       setPresenterMessage(gameState.presenterMessageKey || 'welcome');
-      speakCurrentQuestion();
     } catch (error) {
       if (requestNumber !== languageRequest) return;
       showToast(error.message || 'Could not load questions in the selected language.', 'error');
@@ -652,8 +632,7 @@ function renderCurrentQuestion() {
   if (!q) return;
 
   gameState.answering = false;
-  const isNewQuestion = gameState.timerQuestionId !== q.id;
-  if (isNewQuestion) {
+  if (gameState.timerQuestionId !== q.id) {
     startQuestionTimer(q.id);
     setPresenterMessage(gameState.questionIndex === 0 ? 'welcome' : 'newquestion');
   }
@@ -703,8 +682,6 @@ function renderCurrentQuestion() {
     btn.className = 'option-btn';
     btn.disabled = false;
   });
-
-  if (isNewQuestion) speakCurrentQuestion();
 }
 
 // Configurar Respuestas (A–D)
@@ -724,7 +701,6 @@ function setupOptionListeners() {
       gameState.answering = true;
       window.clearInterval(gameState.timerInterval);
       gameState.timerInterval = null;
-      if (window.PresenterVoice) window.PresenterVoice.stop();
       SoundFX.click();
 
       const selectedLetter = btn.getAttribute('data-option');
