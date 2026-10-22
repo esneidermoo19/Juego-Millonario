@@ -253,7 +253,7 @@ def timeout_game(game_id: int):
 
 @games_bp.post("/<int:game_id>/lifelines/<kind>")
 def use_lifeline(game_id: int, kind: str):
-    aliases = {"5050": "5050", "audience": "audience", "friend": "friend"}
+    aliases = {"5050": "5050", "audience": "audience", "friend": "friend", "presenter": "presenter"}
     if kind not in aliases:
         return jsonify(error="Unknown lifeline"), 404
     session = get_session()
@@ -286,11 +286,24 @@ def use_lifeline(game_id: int, kind: str):
         percentages = {letter: random.randint(0, 15) for letter in wrong}
         percentages[correct_answer] = 100 - sum(percentages.values())
         response = {"percentages": percentages}
-    else:
+    elif kind == "friend":
         if language == "en":
             response = {"message": f"I think the correct answer is {correct_answer}: {option_text[correct_answer]}."}
         else:
             response = {"message": f"Creo que la respuesta correcta es {correct_answer}: {option_text[correct_answer]}."}
+    elif kind == "presenter":
+        wrong = [letter for letter in LETTERS if letter != correct_answer]
+        removed = random.sample(wrong, 1)[0]
+        if language == "en":
+            response = {
+                "removed_option": removed,
+                "message": f"Hmm, I'd rule out option {removed}. I'm not fully sure about the others.",
+            }
+        else:
+            response = {
+                "removed_option": removed,
+                "message": f"Mmm, descartaría la opción {removed}. No estoy del todo seguro de las demás.",
+            }
     session.commit()
     return jsonify(response)
 
