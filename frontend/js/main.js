@@ -150,7 +150,9 @@ document.addEventListener('DOMContentLoaded', () => {
           throw new Error('No se recibió el identificador de la partida.');
         }
 
-        // 3. Guardar en SessionStorage para uso del juego y resultados
+        // 3. Limpiar restos de una partida anterior y guardar la nueva en SessionStorage
+        sessionStorage.removeItem('game_progress');
+        sessionStorage.removeItem('game_result');
         sessionStorage.setItem('player_id', playerId);
         sessionStorage.setItem('player_name', confirmedName);
         sessionStorage.setItem('game_id', gameId);

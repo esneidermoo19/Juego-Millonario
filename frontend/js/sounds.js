@@ -9,7 +9,8 @@
   const SOUNDS = {
     intro: 'assets/sounds/intro.mp3',
     question: 'assets/sounds/question.mp3',
-    fail: 'assets/sounds/fail.mp3'
+    fail: 'assets/sounds/fail.mp3',
+    ring: 'assets/sounds/ring.mp3'
   };
   const CLOCK_MUSIC_SRC = 'assets/sounds/clock-music.mp3';
 
@@ -47,12 +48,13 @@
     } catch (_) {}
   }
 
-  // Precarga los audios de la partida (pregunta, derrota, victoria y música de fondo).
+  // Precarga los audios de la partida (pregunta, derrota, victoria, llamada y música de fondo).
   function preloadGame() {
     try {
       getSound('intro');
       getSound('question');
       getSound('fail');
+      getSound('ring');
       ensureClockAudio();
     } catch (_) {}
   }
@@ -164,6 +166,12 @@
     play('intro', 1.0);
   }
 
+  // Reproduce el tono de llamada telefónica (comodín Amigo).
+  function playRing() {
+    if (isMuted()) return;
+    play('ring', 0.9);
+  }
+
   window.GameSounds = {
     preloadIntro,
     preloadGame,
@@ -173,6 +181,7 @@
     startClockMusic,
     stopClockMusic,
     playFail,
-    playWin
+    playWin,
+    playRing
   };
 })();

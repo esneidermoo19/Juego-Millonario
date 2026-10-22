@@ -50,13 +50,6 @@ const SoundFX = {
     this.playTone(440, 'sine', 0.1, 0);
     this.playTone(880, 'sine', 0.2, 0.1);
   },
-  ringing() {
-    for (let i = 0; i < 3; i++) {
-      const t = i * 0.9;
-      this.playTone(480, 'sine', 0.35, t);
-      this.playTone(440, 'sine', 0.35, t + 0.4);
-    }
-  },
   scanning() {
     this.playTone(280, 'sawtooth', 0.5, 0);
     this.playTone(560, 'sawtooth', 0.5, 0.12);
@@ -255,6 +248,7 @@ async function handleQuestionTimeout(questionId) {
 
 function showTimeoutLoss(prize) {
   if (window.GameSounds) window.GameSounds.playFail();
+  clearProgress();
   const finalPrize = Math.max(Number(prize) || 0, Number(gameState.currentPrize) || 0);
   sessionStorage.setItem('game_result', JSON.stringify({
     type: 'loss',
@@ -950,7 +944,7 @@ function setupLifelines() {
     btnFriend.addEventListener('click', async () => {
       if (gameState.usedLifelines.friend || gameState.answering) return;
       pauseQuestionTimer();
-      SoundFX.ringing();
+      if (window.GameSounds) window.GameSounds.playRing();
 
       const friendModal = document.getElementById('modal-friend');
       const friendMsgEl = document.getElementById('friend-message');
@@ -965,8 +959,8 @@ function setupLifelines() {
         btnFriend.classList.add('used');
         saveProgress();
 
-        // Esperar la animación de llamada antes de que «conteste»
-        await new Promise(resolve => setTimeout(resolve, 2500));
+        // Esperar el tono de llamada (4s) antes de que «conteste»
+        await new Promise(resolve => setTimeout(resolve, 3800));
         if (friendMsgEl) {
           friendMsgEl.textContent = `"${res.message || 'Creo que deberías revisar bien las opciones antes de responder.'}"`;
         }
@@ -1005,28 +999,43 @@ function renderAudienceChart(percentages) {
   chartContainer.innerHTML = '';
   const letters = ['A', 'B', 'C', 'D'];
 
-  letters.forEach(letter => {
+  const columns = letters.map(letter => {
     const val = percentages[letter] !== undefined ? percentages[letter] : 0;
     const col = document.createElement('div');
     col.className = 'audience-bar-column';
     col.innerHTML = `
-      <span class="bar-percentage">${val}%</span>
+      <span class="bar-percentage">0%</span>
       <div class="bar-fill-track">
         <div class="bar-fill" data-height="${val}" style="height: 0%;"></div>
       </div>
       <span class="bar-letter">${letter}</span>
     `;
     chartContainer.appendChild(col);
+    return { col, val };
   });
 
-  // Animación de llenado progresivo de las barras
+  // Animación de llenado progresivo de las barras y conteo de porcentajes
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
-      chartContainer.querySelectorAll('.bar-fill').forEach(bar => {
-        bar.style.height = (bar.dataset.height || 0) + '%';
+      columns.forEach(({ col, val }) => {
+        const bar = col.querySelector('.bar-fill');
+        const pct = col.querySelector('.bar-percentage');
+        if (bar) bar.style.height = val + '%';
+        if (pct) animatePercentage(pct, val);
       });
     });
   });
+}
+
+// Anima un contador de porcentaje de 0% hasta el valor objetivo.
+function animatePercentage(el, target, duration = 900) {
+  const start = performance.now();
+  const step = (now) => {
+    const progress = Math.min(1, (now - start) / duration);
+    el.textContent = Math.round(target * progress) + '%';
+    if (progress < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
 }
 
 // Flujo para Retirarse
