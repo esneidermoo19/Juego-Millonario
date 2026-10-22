@@ -4,6 +4,9 @@
  */
 
 document.addEventListener('DOMContentLoaded', () => {
+  // Precargar audios para que el intro suene al instante al pulsar COMENZAR
+  if (window.GameSounds) window.GameSounds.preload();
+
   const form = document.getElementById('start-game-form');
   const nameInput = document.getElementById('player-name');
   const btnPlay = document.getElementById('btn-play');
@@ -123,8 +126,8 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
-      // Sonido de inicio del programa
-      if (window.GameSounds) window.GameSounds.play('intro');
+      // Sonido de inicio del programa (resuelve al terminar, para no cortarlo)
+      const introPromise = window.GameSounds ? window.GameSounds.playIntro() : Promise.resolve();
 
       try {
         btnPlay.disabled = true;
@@ -152,7 +155,8 @@ document.addEventListener('DOMContentLoaded', () => {
         sessionStorage.setItem('player_name', confirmedName);
         sessionStorage.setItem('game_id', gameId);
 
-        // 4. Redirigir a la arena de juego
+        // 4. Esperar a que termine el intro y redirigir a la arena de juego
+        await introPromise;
         window.location.href = 'game.html';
 
       } catch (error) {
