@@ -76,6 +76,10 @@
               <span class="lifeline-icon">📞</span>
               <span class="lifeline-label">Amigo</span>
             </button>
+            <button id="lifeline-presenter" class="lifeline-btn" title="Preguntar al presentador">
+              <span class="lifeline-icon">🎙️</span>
+              <span class="lifeline-label">Presentador</span>
+            </button>
           </div>
         </div>
 
@@ -194,6 +198,25 @@
       </div>
     </div>
 
+    <!-- Modal Comodín: Preguntar al Presentador -->
+    <div id="modal-presenter" class="modal-backdrop">
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <h2 class="modal-title">🎙️ Preguntar al Presentador</h2>
+          <button class="modal-close-btn" data-close="modal-presenter">&times;</button>
+        </div>
+        <div class="friend-dialog-box">
+          <div class="friend-avatar" id="presenter-avatar">🎙️</div>
+          <div class="speech-bubble" id="presenter-hint-message">
+            "Déjame pensar un momento..."
+          </div>
+        </div>
+        <div style="text-align: right; margin-top: 1.5rem;">
+          <button class="btn btn-primary" data-close="modal-presenter" style="padding: 0.65rem 1.4rem;">Gracias</button>
+        </div>
+      </div>
+    </div>
+
     <!-- Modal de Confirmación para Retirarse -->
     <div id="modal-confirm-quit" class="modal-backdrop">
       <div class="modal-dialog">
@@ -299,6 +322,17 @@
       <h2 id="win-title" class="win-title">¡ERES MILLONARIO!</h2>
       <p id="win-message" class="win-message">¡Respondiste las 15 preguntas correctamente!</p>
       <p id="win-prize" class="win-prize">$1.000.000</p>
+    </div>
+  </div>
+
+  <!-- Overlay de Nivel Seguro (milestone) -->
+  <div id="milestone-overlay" class="milestone-overlay" aria-hidden="true">
+    <div class="win-confetti" id="milestone-confetti" aria-hidden="true"></div>
+    <div class="milestone-content">
+      <div class="milestone-badge" aria-hidden="true">🛡️</div>
+      <h2 id="milestone-title" class="milestone-title">¡NIVEL SEGURO!</h2>
+      <p id="milestone-message" class="milestone-message">Has asegurado tu premio.</p>
+      <p id="milestone-prize" class="milestone-prize">$1.000</p>
     </div>
   </div>
 

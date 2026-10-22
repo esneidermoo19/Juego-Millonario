@@ -71,6 +71,8 @@ const ANSWER_FEEDBACK_MS = 2000;
 const LOSS_NAVIGATION_MS = 6000;
 // Espera antes de ir a resultados al ganar, para disfrutar la celebración.
 const WIN_NAVIGATION_MS = 9000;
+// Duración del overlay de nivel seguro (milestone 5 y 10).
+const MILESTONE_OVERLAY_MS = 2800;
 
 // Estado Principal de Partida
 let gameState = {
@@ -83,7 +85,8 @@ let gameState = {
   usedLifelines: {
     fiftyFifty: false,
     audience: false,
-    friend: false
+    friend: false,
+    presenter: false
   },
   answering: false,       // Evita doble envío / clic múltiple
   timerInterval: null,
@@ -92,6 +95,7 @@ let gameState = {
   timerExpired: false,
   timerPaused: false,
   timerRemainingMs: 0,
+  questionStartTime: null,
   timerTenSecondWarningShown: false,
   timerFiveSecondWarningShown: false,
   presenterMessageKey: 'welcome'
@@ -170,6 +174,7 @@ function startQuestionTimer(questionId) {
   gameState.timerExpired = false;
   gameState.timerPaused = false;
   gameState.timerRemainingMs = 0;
+  gameState.questionStartTime = Date.now();
   gameState.timerTenSecondWarningShown = false;
   gameState.timerFiveSecondWarningShown = false;
   gameState.timerDeadline = Date.now() + QUESTION_TIME_SECONDS * 1000;
@@ -280,6 +285,47 @@ function showAnswerFeedback(optionButtons, correctLetter) {
     option.classList.remove('selected', 'removed-5050', 'correct', 'incorrect');
     option.classList.add(isCorrect ? 'correct' : 'incorrect');
   });
+}
+
+// Muestra el overlay de nivel seguro (milestone) con confeti y el premio.
+function showMilestoneOverlay(level, prizeText) {
+  const overlay = document.getElementById('milestone-overlay');
+  if (!overlay) return;
+
+  const titleEl = document.getElementById('milestone-title');
+  const messageEl = document.getElementById('milestone-message');
+  const prizeEl = document.getElementById('milestone-prize');
+  const confetti = document.getElementById('milestone-confetti');
+
+  if (titleEl) titleEl.textContent = `¡NIVEL SEGURO ${level}!`;
+  if (messageEl) messageEl.textContent = 'Has asegurado tu premio acumulado.';
+  if (prizeEl) prizeEl.textContent = prizeText;
+
+  if (confetti) {
+    confetti.innerHTML = '';
+    const emojis = ['💰', '💵', '🪙', '💲', '🎉'];
+    for (let i = 0; i < 30; i++) {
+      const span = document.createElement('span');
+      span.className = 'win-money';
+      span.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+      span.style.left = (Math.random() * 100) + '%';
+      span.style.animationDuration = (2 + Math.random() * 2.5) + 's';
+      span.style.animationDelay = (Math.random() * 1.5) + 's';
+      span.style.fontSize = (1.1 + Math.random() * 1.6) + 'rem';
+      confetti.appendChild(span);
+    }
+  }
+
+  overlay.classList.add('active');
+  overlay.setAttribute('aria-hidden', 'false');
+}
+
+function hideMilestoneOverlay() {
+  const overlay = document.getElementById('milestone-overlay');
+  if (overlay) {
+    overlay.classList.remove('active');
+    overlay.setAttribute('aria-hidden', 'true');
+  }
 }
 
 // Muestra el overlay de victoria con el presentador, el mensaje y el dinero cayendo.
@@ -420,7 +466,10 @@ function setPresenterMessage(key) {
         : 'El público ya ha votado. ¡Observa sus respuestas!',
       friend: isEnglish
         ? 'Let’s call your friend for some help.'
-        : 'Vamos a llamar a tu amigo para pedirle ayuda.'
+        : 'Vamos a llamar a tu amigo para pedirle ayuda.',
+      presenter: isEnglish
+        ? 'Let me think... I have a hunch about this one.'
+        : 'Déjame pensar... tengo una corazonada con esta.'
     },
     terminator: {
       welcome: isEnglish
@@ -663,6 +712,10 @@ function applyRestoredLifelineState() {
     const btn = document.getElementById('lifeline-friend');
     if (btn) { btn.disabled = true; btn.classList.add('used'); }
   }
+  if (gameState.usedLifelines.presenter) {
+    const btn = document.getElementById('lifeline-presenter');
+    if (btn) { btn.disabled = true; btn.classList.add('used'); }
+  }
 }
 
 // Renderizar Escalera Lateral
@@ -783,6 +836,7 @@ function setupOptionListeners() {
       }
 
       gameState.answering = true;
+      const responseSeconds = Math.max(0, Math.round((Date.now() - (gameState.questionStartTime || Date.now())) / 1000));
       window.clearInterval(gameState.timerInterval);
       gameState.timerInterval = null;
       SoundFX.click();
@@ -799,6 +853,7 @@ function setupOptionListeners() {
         const result = await window.api.answer(gameState.gameId, q.id, selectedLetter);
         const correctLetter = result.correct ? selectedLetter : result.correct_answer;
         showAnswerFeedback(optionButtons, correctLetter);
+        showToast(`⏱️ Respondiste en ${responseSeconds}s`, 'info');
 
         if (result.correct) {
           SoundFX.correct();
@@ -826,11 +881,17 @@ function setupOptionListeners() {
           } else {
             // Avanzar a la siguiente pregunta (espera para ver el color verde)
             setPresenterMessage('correct');
+            const answeredNumber = gameState.questionIndex + 1;
+            const isMilestone = answeredNumber === 5 || answeredNumber === 10;
+            if (isMilestone) {
+              showMilestoneOverlay(answeredNumber, formatCurrency(result.prize || gameState.currentPrize));
+            }
             setTimeout(() => {
+              hideMilestoneOverlay();
               gameState.questionIndex++;
               saveProgress();
               renderCurrentQuestion();
-            }, ANSWER_FEEDBACK_MS);
+            }, isMilestone ? MILESTONE_OVERLAY_MS : ANSWER_FEEDBACK_MS);
           }
 
         } else {
@@ -863,11 +924,12 @@ function setupOptionListeners() {
   });
 }
 
-// Configurar Comodines (50/50, Público, Amigo)
+// Configurar Comodines (50/50, Público, Amigo, Presentador)
 function setupLifelines() {
   const btn5050 = document.getElementById('lifeline-5050');
   const btnAudience = document.getElementById('lifeline-audience');
   const btnFriend = document.getElementById('lifeline-friend');
+  const btnPresenter = document.getElementById('lifeline-presenter');
 
   // 1. Comodín 50/50
   if (btn5050) {
@@ -971,6 +1033,50 @@ function setupLifelines() {
         if (friendMsgEl) friendMsgEl.textContent = '"No pude conectar con mi amigo."';
         resumeQuestionTimer();
         handleLifelineError(error, btnFriend, 'friend');
+      }
+    });
+  }
+
+  // 4. Comodín Preguntar al Presentador
+  if (btnPresenter) {
+    btnPresenter.addEventListener('click', async () => {
+      if (gameState.usedLifelines.presenter || gameState.answering) return;
+      pauseQuestionTimer();
+      SoundFX.voting();
+
+      const presenterModal = document.getElementById('modal-presenter');
+      const presenterMsgEl = document.getElementById('presenter-hint-message');
+      if (presenterMsgEl) presenterMsgEl.textContent = 'Déjame pensar un momento...';
+      if (presenterModal) presenterModal.classList.add('calling');
+      openModal('modal-presenter');
+
+      try {
+        const res = await window.api.lifeline(gameState.gameId, 'presenter');
+        gameState.usedLifelines.presenter = true;
+        btnPresenter.disabled = true;
+        btnPresenter.classList.add('used');
+        saveProgress();
+
+        await new Promise(resolve => setTimeout(resolve, 1800));
+
+        // Descartar la opción que elimina el presentador
+        if (res.removed_option) {
+          const optBtn = document.querySelector(`.option-btn[data-option="${res.removed_option}"]`);
+          if (optBtn) {
+            optBtn.classList.add('removed-5050');
+            optBtn.disabled = true;
+          }
+        }
+        if (presenterMsgEl) {
+          presenterMsgEl.textContent = `"${res.message || 'Mmm, descartaría una opción, pero no estoy del todo seguro.'}"`;
+        }
+        if (presenterModal) presenterModal.classList.remove('calling');
+        setPresenterMessage('presenter');
+      } catch (error) {
+        if (presenterModal) presenterModal.classList.remove('calling');
+        if (presenterMsgEl) presenterMsgEl.textContent = '"No pude consultar al presentador."';
+        resumeQuestionTimer();
+        handleLifelineError(error, btnPresenter, 'presenter');
       }
     });
   }
@@ -1097,7 +1203,7 @@ function setupModalCloses() {
       const modal = document.getElementById(modalId);
       if (modal) {
         modal.classList.remove('active');
-        if (modalId === 'modal-settings-game' || modalId === 'modal-audience' || modalId === 'modal-friend') {
+        if (modalId === 'modal-settings-game' || modalId === 'modal-audience' || modalId === 'modal-friend' || modalId === 'modal-presenter') {
           resumeQuestionTimer();
         }
       }
