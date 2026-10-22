@@ -49,6 +49,22 @@ const SoundFX = {
   lifeline() {
     this.playTone(440, 'sine', 0.1, 0);
     this.playTone(880, 'sine', 0.2, 0.1);
+  },
+  ringing() {
+    for (let i = 0; i < 3; i++) {
+      const t = i * 0.9;
+      this.playTone(480, 'sine', 0.35, t);
+      this.playTone(440, 'sine', 0.35, t + 0.4);
+    }
+  },
+  scanning() {
+    this.playTone(280, 'sawtooth', 0.5, 0);
+    this.playTone(560, 'sawtooth', 0.5, 0.12);
+  },
+  voting() {
+    this.playTone(523.25, 'sine', 0.6, 0);
+    this.playTone(659.25, 'sine', 0.6, 0.15);
+    this.playTone(783.99, 'sine', 0.8, 0.3);
   }
 };
 
@@ -60,6 +76,8 @@ const QUESTION_TIME_SECONDS = 40;
 const ANSWER_FEEDBACK_MS = 2000;
 // Espera antes de ir a resultados al perder, para que suene completo el jingle de derrota.
 const LOSS_NAVIGATION_MS = 6000;
+// Espera antes de ir a resultados al ganar, para disfrutar la celebración.
+const WIN_NAVIGATION_MS = 9000;
 
 // Estado Principal de Partida
 let gameState = {
@@ -268,6 +286,49 @@ function showAnswerFeedback(optionButtons, correctLetter) {
     option.classList.remove('selected', 'removed-5050', 'correct', 'incorrect');
     option.classList.add(isCorrect ? 'correct' : 'incorrect');
   });
+}
+
+// Muestra el overlay de victoria con el presentador, el mensaje y el dinero cayendo.
+function showWinOverlay(prizeText) {
+  const overlay = document.getElementById('win-overlay');
+  if (!overlay) return;
+
+  // Copiar la imagen del presentador seleccionado
+  const artImg = document.querySelector('.presenter-art');
+  const artSource = document.querySelector('.presenter-art-picture source[type="image/webp"]');
+  const winImg = document.getElementById('win-presenter-img');
+  const winSource = document.getElementById('win-presenter-source');
+  if (artImg && winImg) winImg.src = artImg.src;
+  if (artSource && winSource) winSource.srcset = artSource.srcset;
+
+  // Mensaje de victoria del presentador (ya generado por setPresenterMessage('win'))
+  const bubble = document.getElementById('presenter-message');
+  const messageEl = document.getElementById('win-message');
+  if (messageEl && bubble) messageEl.textContent = bubble.textContent;
+
+  // Premio final
+  const prizeEl = document.getElementById('win-prize');
+  if (prizeEl) prizeEl.textContent = prizeText;
+
+  // Confeti de dinero
+  const confetti = document.getElementById('win-confetti');
+  if (confetti) {
+    confetti.innerHTML = '';
+    const emojis = ['💰', '💵', '🪙', '💲', '💎'];
+    for (let i = 0; i < 40; i++) {
+      const span = document.createElement('span');
+      span.className = 'win-money';
+      span.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+      span.style.left = (Math.random() * 100) + '%';
+      span.style.animationDuration = (2.5 + Math.random() * 3) + 's';
+      span.style.animationDelay = (Math.random() * 2) + 's';
+      span.style.fontSize = (1.2 + Math.random() * 1.8) + 'rem';
+      confetti.appendChild(span);
+    }
+  }
+
+  overlay.classList.add('active');
+  overlay.setAttribute('aria-hidden', 'false');
 }
 
 // ─── Selección e Imagen del Presentador ────────────────────────────────
@@ -757,6 +818,7 @@ function setupOptionListeners() {
             // ¡Victoria Total! (el backend ya cierra la partida)
             setPresenterMessage('win');
             clearProgress();
+            if (window.GameSounds) window.GameSounds.playWin();
 
             sessionStorage.setItem('game_result', JSON.stringify({
               type: 'win',
@@ -765,7 +827,8 @@ function setupOptionListeners() {
               cleared: gameState.questionIndex + 1
             }));
 
-            setTimeout(() => window.location.href = 'results.html', ANSWER_FEEDBACK_MS);
+            showWinOverlay(formatCurrency(result.prize || gameState.currentPrize));
+            setTimeout(() => window.location.href = 'results.html', WIN_NAVIGATION_MS);
           } else {
             // Avanzar a la siguiente pregunta (espera para ver el color verde)
             setPresenterMessage('correct');
@@ -816,7 +879,8 @@ function setupLifelines() {
   if (btn5050) {
     btn5050.addEventListener('click', async () => {
       if (gameState.usedLifelines.fiftyFifty || gameState.answering) return;
-      SoundFX.lifeline();
+      pauseQuestionTimer();
+      SoundFX.scanning();
 
       try {
         const res = await window.api.lifeline(gameState.gameId, '5050');
@@ -825,18 +889,33 @@ function setupLifelines() {
         btn5050.classList.add('used');
         saveProgress();
 
-        // Ocultar las 2 opciones eliminadas devueltas por el backend
+        // Animación de escaneo (parpadeo) antes de eliminar las 2 opciones incorrectas
         if (res.removed_options && Array.isArray(res.removed_options)) {
-          res.removed_options.forEach(letter => {
-            const optBtn = document.querySelector(`.option-btn[data-option="${letter}"]`);
-            if (optBtn) {
-              optBtn.classList.add('removed-5050');
-              optBtn.disabled = true;
-            }
-          });
+          const optButtons = res.removed_options
+            .map(letter => document.querySelector(`.option-btn[data-option="${letter}"]`))
+            .filter(Boolean);
+          const allOptions = document.querySelectorAll('.option-btn');
+          // Deshabilitar temporalmente todas las opciones durante el escaneo
+          allOptions.forEach(b => b.disabled = true);
+          optButtons.forEach(b => b.classList.add('scanning-5050'));
+          setTimeout(() => {
+            optButtons.forEach(b => {
+              b.classList.remove('scanning-5050');
+              b.classList.add('removed-5050');
+              b.disabled = true;
+            });
+            // Reactivar las opciones que no fueron eliminadas
+            allOptions.forEach(b => {
+              if (!b.classList.contains('removed-5050')) b.disabled = false;
+            });
+            resumeQuestionTimer();
+          }, 1600);
+        } else {
+          resumeQuestionTimer();
         }
         setPresenterMessage('fifty');
       } catch (error) {
+        resumeQuestionTimer();
         handleLifelineError(error, btn5050, 'fiftyFifty');
       }
     });
@@ -846,7 +925,8 @@ function setupLifelines() {
   if (btnAudience) {
     btnAudience.addEventListener('click', async () => {
       if (gameState.usedLifelines.audience || gameState.answering) return;
-      SoundFX.lifeline();
+      pauseQuestionTimer();
+      SoundFX.voting();
 
       try {
         const res = await window.api.lifeline(gameState.gameId, 'audience');
@@ -859,16 +939,24 @@ function setupLifelines() {
         setPresenterMessage('audience');
         openModal('modal-audience');
       } catch (error) {
+        resumeQuestionTimer();
         handleLifelineError(error, btnAudience, 'audience');
       }
     });
   }
 
-  // 3. Comodín Amigo
+  // 3. Comodín Amigo (llamada con animación y respuesta)
   if (btnFriend) {
     btnFriend.addEventListener('click', async () => {
       if (gameState.usedLifelines.friend || gameState.answering) return;
-      SoundFX.lifeline();
+      pauseQuestionTimer();
+      SoundFX.ringing();
+
+      const friendModal = document.getElementById('modal-friend');
+      const friendMsgEl = document.getElementById('friend-message');
+      if (friendMsgEl) friendMsgEl.textContent = 'Llamando...';
+      if (friendModal) friendModal.classList.add('calling');
+      openModal('modal-friend');
 
       try {
         const res = await window.api.lifeline(gameState.gameId, 'friend');
@@ -877,13 +965,17 @@ function setupLifelines() {
         btnFriend.classList.add('used');
         saveProgress();
 
-        const friendMsgEl = document.getElementById('friend-message');
+        // Esperar la animación de llamada antes de que «conteste»
+        await new Promise(resolve => setTimeout(resolve, 2500));
         if (friendMsgEl) {
           friendMsgEl.textContent = `"${res.message || 'Creo que deberías revisar bien las opciones antes de responder.'}"`;
         }
+        if (friendModal) friendModal.classList.remove('calling');
         setPresenterMessage('friend');
-        openModal('modal-friend');
       } catch (error) {
+        if (friendModal) friendModal.classList.remove('calling');
+        if (friendMsgEl) friendMsgEl.textContent = '"No pude conectar con mi amigo."';
+        resumeQuestionTimer();
         handleLifelineError(error, btnFriend, 'friend');
       }
     });
@@ -920,11 +1012,20 @@ function renderAudienceChart(percentages) {
     col.innerHTML = `
       <span class="bar-percentage">${val}%</span>
       <div class="bar-fill-track">
-        <div class="bar-fill" style="height: ${val}%;"></div>
+        <div class="bar-fill" data-height="${val}" style="height: 0%;"></div>
       </div>
       <span class="bar-letter">${letter}</span>
     `;
     chartContainer.appendChild(col);
+  });
+
+  // Animación de llenado progresivo de las barras
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      chartContainer.querySelectorAll('.bar-fill').forEach(bar => {
+        bar.style.height = (bar.dataset.height || 0) + '%';
+      });
+    });
   });
 }
 
@@ -987,7 +1088,9 @@ function setupModalCloses() {
       const modal = document.getElementById(modalId);
       if (modal) {
         modal.classList.remove('active');
-        if (modalId === 'modal-settings-game') resumeQuestionTimer();
+        if (modalId === 'modal-settings-game' || modalId === 'modal-audience' || modalId === 'modal-friend') {
+          resumeQuestionTimer();
+        }
       }
     });
   });

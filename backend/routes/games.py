@@ -15,6 +15,7 @@ from ..services.game_service import (
 )
 from ..services.question_translations import english_question
 from ..services.prizes import PRIZES, prize_for_correct_answers
+from ..services.ranking import prune_ranking
 from .common import (
     commit_or_error,
     json_body,
@@ -216,6 +217,8 @@ def answer_game(game_id: int):
         game.finished_at = datetime.now(timezone.utc)
         finished = True
     session.commit()
+    if finished:
+        prune_ranking(session)
     result = {"correct": correct, "prize": game.score, "game_finished": finished}
     if not correct:
         result["correct_answer"] = correct_answer
@@ -244,6 +247,7 @@ def timeout_game(game_id: int):
     game.status = "completed"
     game.finished_at = datetime.now(timezone.utc)
     session.commit()
+    prune_ranking(session)
     return jsonify(correct=False, prize=game.score, game_finished=True)
 
 
@@ -320,4 +324,5 @@ def finish_game(game_id: int):
     game.status = "completed"
     game.finished_at = datetime.now(timezone.utc)
     session.commit()
+    prune_ranking(session)
     return jsonify(success=True, final_prize=game.score)

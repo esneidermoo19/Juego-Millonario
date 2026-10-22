@@ -8,9 +8,20 @@ from sqlalchemy.orm import Session, sessionmaker
 
 from .models import Base, Game, Question
 from .services.prizes import prize_for_correct_answers
+from .services.ranking import reset_ranking
 
 
 STARTER_QUESTIONS = [
+    ("¿De qué color es la leche?", "Rojo", "Blanco", "Verde", "Morado", "B"),
+    ("¿Qué animal dice «guau»?", "Gato", "Vaca", "Perro", "Pato", "C"),
+    ("¿Cuántas ruedas tiene un carro?", "Dos", "Tres", "Cuatro", "Cinco", "C"),
+    ("¿Qué fruta es roja y pequeña?", "Fresa", "Banano", "Pera", "Uva", "A"),
+    ("¿Con qué utensilio comemos la sopa?", "Tenedor", "Cuchillo", "Cuchara", "Palillo", "C"),
+    ("¿De qué color es el carbón?", "Blanco", "Amarillo", "Negro", "Azul", "C"),
+    ("¿Qué animal vive en el agua?", "Perro", "Gato", "Pez", "Pájaro", "C"),
+    ("¿Cuántos ojos tiene una persona?", "Uno", "Dos", "Tres", "Cuatro", "B"),
+    ("¿Qué prenda usamos en los pies?", "Sombrero", "Guantes", "Zapatos", "Bufanda", "C"),
+    ("¿Qué usamos para cepillarnos los dientes?", "Peine", "Cepillo de dientes", "Tijeras", "Jabón", "B"),
     ("¿De qué color es el cielo en un día despejado?", "Verde", "Azul", "Rojo", "Amarillo", "B"),
     ("¿Cuántos días tiene una semana?", "Cinco", "Seis", "Siete", "Ocho", "C"),
     ("¿Qué animal dice «miau»?", "Perro", "Gato", "Vaca", "Pato", "B"),
@@ -70,6 +81,16 @@ STARTER_QUESTIONS = [
     ("¿A quién se le atribuye «La Odisea»?", "Homero", "Virgilio", "Sófocles", "Platón", "A"),
     ("¿Qué pintor español es famoso por sus relojes derretidos?", "Joan Miró", "Salvador Dalí", "Francisco de Goya", "Diego Velázquez", "B"),
     ("¿En qué país se celebra el Oktoberfest original?", "Austria", "Suiza", "Alemania", "Bélgica", "C"),
+    ("¿Cuántos continentes hay en la Tierra?", "Cinco", "Seis", "Siete", "Ocho", "C"),
+    ("¿Qué país es famoso por la Torre Eiffel?", "Italia", "España", "Francia", "Alemania", "C"),
+    ("¿Cuál es el océano más grande del mundo?", "Atlántico", "Índico", "Ártico", "Pacífico", "D"),
+    ("¿Cuántos lados tiene un triángulo?", "Dos", "Tres", "Cuatro", "Cinco", "B"),
+    ("¿Qué instrumento tiene teclas blancas y negras?", "Guitarra", "Piano", "Tambor", "Flauta", "B"),
+    ("¿Qué gas respiramos los humanos?", "Dióxido de carbono", "Oxígeno", "Hidrógeno", "Nitrógeno", "B"),
+    ("¿Cuál es la capital de España?", "Barcelona", "Sevilla", "Madrid", "Valencia", "C"),
+    ("¿Qué deporte se juega con una raqueta y una pelota?", "Fútbol", "Tenis", "Béisbol", "Golf", "B"),
+    ("¿Qué animal es conocido por su caparazón?", "Perro", "Gato", "Tortuga", "Conejo", "C"),
+    ("¿Qué instrumento musical se toca soplando?", "Guitarra", "Batería", "Flauta", "Piano", "C"),
     ("¿Quién es el dios del trueno en la mitología nórdica?", "Odín", "Balder", "Loki", "Thor", "D"),
     ("¿Quién escribió «La metamorfosis», donde Gregorio Samsa se convierte en insecto?", "Franz Kafka", "Albert Camus", "Hermann Hesse", "Thomas Mann", "A"),
     ("¿Qué ciudad es conocida como la «Ciudad Eterna»?", "París", "Roma", "Jerusalén", "Atenas", "B"),
@@ -131,6 +152,16 @@ STARTER_QUESTIONS = [
     ("¿Qué cantante colombiano popularizó en 1993 el vallenato «La gota fría»?", "Juanes", "Carlos Vives", "J Balvin", "Maluma", "B"),
     ("¿Qué cantante colombiano es famoso por la canción «La camisa negra»?", "Carlos Vives", "Fonseca", "Juanes", "Silvestre Dangond", "C"),
     ("¿Qué red social es famosa por sus videos cortos y retos de baile?", "LinkedIn", "Gmail", "Wikipedia", "TikTok", "D"),
+    ("¿Quién escribió «Don Quijote de la Mancha»?", "Cervantes", "Shakespeare", "Dante", "Homero", "A"),
+    ("¿Cuál es el elemento químico con símbolo «Au»?", "Plata", "Oro", "Hierro", "Cobre", "B"),
+    ("¿En qué año llegó el ser humano a la Luna?", "1965", "1969", "1972", "1980", "B"),
+    ("¿Qué científico formuló la teoría de la relatividad?", "Newton", "Galileo", "Einstein", "Tesla", "C"),
+    ("¿Cuál es la montaña más alta del mundo?", "Mont Blanc", "Kilimanjaro", "Everest", "Aconcagua", "C"),
+    ("¿Qué pintor pintó «La Mona Lisa»?", "Leonardo da Vinci", "Miguel Ángel", "Rafael", "Van Gogh", "A"),
+    ("¿Cuál es el hueso más largo del cuerpo humano?", "Húmero", "Fémur", "Tibia", "Cráneo", "B"),
+    ("¿En qué obra de Shakespeare aparece «Ser o no ser»?", "Macbeth", "Hamlet", "Otelo", "Romeo y Julieta", "B"),
+    ("¿Cuál es la capital de Australia?", "Sídney", "Melbourne", "Canberra", "Perth", "C"),
+    ("¿Qué océano separa América de Europa?", "Pacífico", "Índico", "Atlántico", "Ártico", "C"),
 ]
 
 
@@ -193,6 +224,10 @@ def init_database(app: Flask) -> None:
                     for field, value in values.items():
                         setattr(question, field, value)
             session.commit()
+
+        # Reiniciar el marcador en cada despliegue (marcador a cero).
+        with factory() as session:
+            reset_ranking(session)
     app.teardown_appcontext(_close_session)
 
 
