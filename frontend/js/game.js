@@ -642,6 +642,9 @@ function renderCurrentQuestion() {
     btn.className = 'option-btn';
     btn.disabled = false;
   });
+
+  // Sonido de presentación de la pregunta
+  if (window.GameSounds) window.GameSounds.play('question');
 }
 
 // Configurar Respuestas (A–D)
