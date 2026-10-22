@@ -212,6 +212,7 @@ async function handleQuestionTimeout(questionId) {
 }
 
 function showTimeoutLoss(prize) {
+  if (window.GameSounds) window.GameSounds.playFail();
   const finalPrize = Math.max(Number(prize) || 0, Number(gameState.currentPrize) || 0);
   sessionStorage.setItem('game_result', JSON.stringify({
     type: 'loss',
@@ -225,6 +226,7 @@ function showTimeoutLoss(prize) {
 }
 
 function showLossResult(prize) {
+  if (window.GameSounds) window.GameSounds.playFail();
   const finalPrize = Math.max(Number(prize) || 0, Number(gameState.currentPrize) || 0);
   sessionStorage.setItem('game_result', JSON.stringify({
     type: 'loss',
@@ -751,7 +753,6 @@ function setupOptionListeners() {
 
         } else {
           // Respuesta Incorrecta (Derrota)
-          SoundFX.wrong();
           setPresenterMessage('incorrect');
           clearProgress();
           showLossResult(result.prize);

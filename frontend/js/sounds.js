@@ -5,7 +5,8 @@
 (() => {
   const SOUNDS = {
     intro: 'assets/sounds/intro.mp3',
-    question: 'assets/sounds/question.mp3'
+    question: 'assets/sounds/question.mp3',
+    fail: 'assets/sounds/fail.mp3'
   };
   const CLOCK_MUSIC_SRC = 'assets/sounds/clock-music.mp3';
 
@@ -70,5 +71,11 @@
     }
   }
 
-  window.GameSounds = { play, playQuestion, startClockMusic, stopClockMusic, preloadClockMusic };
+  // Detiene la música de fondo y reproduce el jingle de derrota.
+  function playFail() {
+    stopClockMusic();
+    play('fail');
+  }
+
+  window.GameSounds = { play, playQuestion, startClockMusic, stopClockMusic, preloadClockMusic, playFail };
 })();
