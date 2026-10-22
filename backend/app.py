@@ -2,8 +2,9 @@ from __future__ import annotations
 
 import os
 
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from dotenv import load_dotenv
+from flask_compress import Compress
 
 from .database import init_database
 from .routes.games import games_bp
@@ -28,6 +29,9 @@ def create_app(test_config: dict[str, object] | None = None) -> Flask:
 
     init_database(app)
 
+    # Comprimir respuestas (JSON, JS, CSS, HTML) para reducir ancho de banda.
+    Compress(app)
+
     # Allow frontend (static files) to be served from the project frontend/ folder
     # and add simple CORS headers so the SPA can call the backend.
     @app.after_request
@@ -37,6 +41,20 @@ def create_app(test_config: dict[str, object] | None = None) -> Flask:
         response.headers.setdefault(
             "Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS"
         )
+        return response
+
+    # Cabeceras de caché: HTML siempre revalida; assets y audio se cachean en el cliente.
+    @app.after_request
+    def _add_cache_headers(response):
+        path = request.path
+        if path.startswith("/api/"):
+            response.headers["Cache-Control"] = "no-store"
+        elif path == "/" or path.endswith(".html"):
+            response.headers["Cache-Control"] = "no-cache"
+        elif path.endswith((".webp", ".png", ".jpg", ".jpeg", ".mp3", ".wav", ".ogg")):
+            response.headers["Cache-Control"] = "public, max-age=86400"
+        else:
+            response.headers["Cache-Control"] = "public, max-age=3600"
         return response
 
     # Serve index at root; static files are served from the configured static_folder.

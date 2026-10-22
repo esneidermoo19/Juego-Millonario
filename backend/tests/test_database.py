@@ -15,9 +15,9 @@ DEFAULT_DATABASE_URL = "sqlite:///backend/instance/millionaire.db"
 
 
 class QuestionBankTests(unittest.TestCase):
-    def test_bank_has_one_hundred_unique_questions(self):
-        self.assertEqual(len(STARTER_QUESTIONS), 100)
-        self.assertEqual(len({question[0] for question in STARTER_QUESTIONS}), 100)
+    def test_bank_has_unique_questions(self):
+        self.assertGreater(len(STARTER_QUESTIONS), 0)
+        self.assertEqual(len({question[0] for question in STARTER_QUESTIONS}), len(STARTER_QUESTIONS))
 
     def test_every_question_is_well_formed(self):
         for text, a, b, c, d, answer in STARTER_QUESTIONS:
@@ -71,7 +71,7 @@ class StarterSeedTests(unittest.TestCase):
 
     def test_restarting_does_not_duplicate_questions(self):
         self.start_app()
-        self.assertEqual(len(self.stored_questions(self.start_app())), 100)
+        self.assertEqual(len(self.stored_questions(self.start_app())), len(STARTER_QUESTIONS))
 
     def test_old_bank_questions_are_replaced(self):
         app = self.start_app()
@@ -82,7 +82,7 @@ class StarterSeedTests(unittest.TestCase):
             session.commit()
 
         questions = self.stored_questions(self.start_app())
-        self.assertEqual(len(questions), 100)
+        self.assertEqual(len(questions), len(STARTER_QUESTIONS))
         self.assertEqual(questions[0].text, STARTER_QUESTIONS[0][0])
         self.assertEqual(questions[0].correct_option, STARTER_QUESTIONS[0][5])
 

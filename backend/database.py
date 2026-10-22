@@ -11,6 +11,26 @@ from .services.prizes import prize_for_correct_answers
 
 
 STARTER_QUESTIONS = [
+    ("¿De qué color es el cielo en un día despejado?", "Verde", "Azul", "Rojo", "Amarillo", "B"),
+    ("¿Cuántos días tiene una semana?", "Cinco", "Seis", "Siete", "Ocho", "C"),
+    ("¿Qué animal dice «miau»?", "Perro", "Gato", "Vaca", "Pato", "B"),
+    ("¿Cuántas patas tiene un gato?", "Dos", "Tres", "Cuatro", "Cinco", "C"),
+    ("¿Qué bebida se obtiene de la vaca?", "Agua", "Jugo", "Leche", "Café", "C"),
+    ("¿Cuántos meses tiene un año?", "Diez", "Once", "Doce", "Trece", "C"),
+    ("¿De qué color es la nieve?", "Blanco", "Negro", "Verde", "Azul", "A"),
+    ("¿Qué usamos para saber la hora?", "Un libro", "Un reloj", "Una silla", "Una taza", "B"),
+    ("¿Cuántas horas tiene un día?", "Doce", "Dieciocho", "Veinticuatro", "Treinta", "C"),
+    ("¿De qué color es la hierba?", "Verde", "Roja", "Azul", "Morada", "A"),
+    ("¿Qué fruta es amarilla y les encanta a los monos?", "Manzana", "Pera", "Banano", "Uva", "C"),
+    ("¿En qué planeta vivimos?", "Marte", "Júpiter", "Venus", "La Tierra", "D"),
+    ("¿Qué estación del año es la más calurosa?", "Invierno", "Verano", "Otoño", "Primavera", "B"),
+    ("¿Cuántos dedos tiene una mano?", "Cuatro", "Cinco", "Seis", "Siete", "B"),
+    ("¿De qué color es el sol?", "Amarillo", "Morado", "Verde", "Azul", "A"),
+    ("¿Qué insecto produce miel?", "Mosca", "Hormiga", "Abeja", "Araña", "C"),
+    ("¿Qué animal tiene una trompa larga?", "León", "Tigre", "Elefante", "Jirafa", "C"),
+    ("¿Con qué escribimos en un papel?", "Lápiz", "Tenedor", "Cuchara", "Peine", "A"),
+    ("¿Qué usamos para lavarnos las manos?", "Arena", "Jabón", "Azúcar", "Sal", "B"),
+    ("¿Cuántas ruedas tiene una bicicleta?", "Una", "Dos", "Tres", "Cuatro", "B"),
     ("¿Quién pintó «La noche estrellada»?", "Vincent van Gogh", "Claude Monet", "Salvador Dalí", "Rembrandt", "A"),
     ("¿En qué ciudad se encuentra el Coliseo?", "Atenas", "Roma", "Estambul", "Madrid", "B"),
     ("¿Qué instrumento tocaba principalmente Jimi Hendrix?", "Batería", "Piano", "Guitarra eléctrica", "Saxofón", "C"),
@@ -126,7 +146,10 @@ def init_database(app: Flask) -> None:
     engine = create_engine(database_url, connect_args=connect_args)
 
     if database_url.startswith("sqlite"):
-        event.listen(engine, "connect", _enable_sqlite_foreign_keys)
+        event.listen(engine, "connect", _configure_sqlite_connection)
+        # WAL permite lecturas y escrituras concurrentes (imprescindible con varios workers).
+        with engine.connect() as conn:
+            conn.exec_driver_sql("PRAGMA journal_mode=WAL")
 
     app.extensions["database_engine"] = engine
     app.extensions["database_session_factory"] = sessionmaker(
@@ -187,9 +210,11 @@ def _close_session(exception: BaseException | None = None) -> None:
         session.close()
 
 
-def _enable_sqlite_foreign_keys(
+def _configure_sqlite_connection(
     dbapi_connection: object, connection_record: object
 ) -> None:
     cursor = dbapi_connection.cursor()
     cursor.execute("PRAGMA foreign_keys=ON")
+    cursor.execute("PRAGMA busy_timeout=5000")
+    cursor.execute("PRAGMA synchronous=NORMAL")
     cursor.close()
