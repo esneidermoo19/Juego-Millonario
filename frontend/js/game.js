@@ -212,8 +212,8 @@ async function handleQuestionTimeout(questionId) {
   }
 }
 
-function showTimeoutLoss(prize) {
-  if (window.GameSounds) window.GameSounds.playFail();
+async function showTimeoutLoss(prize) {
+  const failPromise = window.GameSounds ? window.GameSounds.playFail() : Promise.resolve();
   const finalPrize = Math.max(Number(prize) || 0, Number(gameState.currentPrize) || 0);
   sessionStorage.setItem('game_result', JSON.stringify({
     type: 'loss',
@@ -223,11 +223,12 @@ function showTimeoutLoss(prize) {
     cleared: gameState.questionIndex + 1,
     correctlyAnswered: gameState.questionIndex
   }));
-  setTimeout(() => { window.location.href = 'results.html'; }, ANSWER_FEEDBACK_MS);
+  await failPromise;
+  window.location.href = 'results.html';
 }
 
-function showLossResult(prize) {
-  if (window.GameSounds) window.GameSounds.playFail();
+async function showLossResult(prize) {
+  const failPromise = window.GameSounds ? window.GameSounds.playFail() : Promise.resolve();
   const finalPrize = Math.max(Number(prize) || 0, Number(gameState.currentPrize) || 0);
   sessionStorage.setItem('game_result', JSON.stringify({
     type: 'loss',
@@ -236,7 +237,8 @@ function showLossResult(prize) {
     cleared: gameState.questionIndex + 1,
     correctlyAnswered: gameState.questionIndex
   }));
-  setTimeout(() => { window.location.href = 'results.html'; }, ANSWER_FEEDBACK_MS);
+  await failPromise;
+  window.location.href = 'results.html';
 }
 
 function showAnswerFeedback(optionButtons, correctLetter) {

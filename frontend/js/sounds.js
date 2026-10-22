@@ -60,12 +60,12 @@
     } catch (_) {}
   }
 
-  // Reproduce el intro y resuelve la promesa cuando termina (para no cortarlo al navegar).
-  function playIntro() {
+  // Reproduce un audio y resuelve la promesa cuando termina de sonar (con respaldo).
+  function playAndWait(name, volume = 0.9) {
     if (isMuted()) return Promise.resolve();
     try {
-      const audio = getSound('intro');
-      audio.volume = 0.9;
+      const audio = getSound(name);
+      audio.volume = volume;
       audio.currentTime = 0;
       return new Promise((resolve) => {
         let settled = false;
@@ -82,6 +82,11 @@
     } catch (_) {
       return Promise.resolve();
     }
+  }
+
+  // Reproduce el intro y resuelve la promesa cuando termina (para no cortarlo al navegar).
+  function playIntro() {
+    return playAndWait('intro');
   }
 
   function clearClockTimer() {
@@ -138,10 +143,10 @@
     } catch (_) {}
   }
 
-  // Detiene la música de fondo y reproduce el jingle de derrota.
+  // Detiene la música de fondo y reproduce el jingle de derrota hasta el final.
   function playFail() {
     stopClockMusic();
-    play('fail');
+    return playAndWait('fail');
   }
 
   window.GameSounds = {
