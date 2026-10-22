@@ -1,6 +1,26 @@
-"""English text for the built-in question bank, indexed by difficulty (1-100)."""
+"""English text for the built-in question bank, indexed by difficulty."""
 
 ENGLISH_QUESTIONS = [
+    ("What color is the sky on a clear day?", ("Green", "Blue", "Red", "Yellow")),
+    ("How many days are in a week?", ("Five", "Six", "Seven", "Eight")),
+    ("Which animal says \"meow\"?", ("Dog", "Cat", "Cow", "Duck")),
+    ("How many legs does a cat have?", ("Two", "Three", "Four", "Five")),
+    ("Which drink comes from cows?", ("Water", "Juice", "Milk", "Coffee")),
+    ("How many months are in a year?", ("Ten", "Eleven", "Twelve", "Thirteen")),
+    ("What color is snow?", ("White", "Black", "Green", "Blue")),
+    ("What do we use to tell the time?", ("A book", "A clock", "A chair", "A cup")),
+    ("How many hours are in a day?", ("Twelve", "Eighteen", "Twenty-four", "Thirty")),
+    ("What color is grass?", ("Green", "Red", "Blue", "Purple")),
+    ("Which fruit is yellow and monkeys love it?", ("Apple", "Pear", "Banana", "Grape")),
+    ("Which planet do we live on?", ("Mars", "Jupiter", "Venus", "Earth")),
+    ("Which season is the hottest?", ("Winter", "Summer", "Autumn", "Spring")),
+    ("How many fingers does one hand have?", ("Four", "Five", "Six", "Seven")),
+    ("What color is the sun?", ("Yellow", "Purple", "Green", "Blue")),
+    ("Which insect makes honey?", ("Fly", "Ant", "Bee", "Spider")),
+    ("Which animal has a long trunk?", ("Lion", "Tiger", "Elephant", "Giraffe")),
+    ("What do we write with on paper?", ("Pencil", "Fork", "Spoon", "Comb")),
+    ("What do we use to wash our hands?", ("Sand", "Soap", "Sugar", "Salt")),
+    ("How many wheels does a bicycle have?", ("One", "Two", "Three", "Four")),
     ("Who painted \"The Starry Night\"?", ("Vincent van Gogh", "Claude Monet", "Salvador Dalí", "Rembrandt")),
     ("In which city is the Colosseum?", ("Athens", "Rome", "Istanbul", "Madrid")),
     ("Which instrument did Jimi Hendrix mainly play?", ("Drums", "Piano", "Electric guitar", "Saxophone")),

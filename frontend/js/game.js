@@ -56,7 +56,7 @@ const SoundFX = {
 const SAFE_LEVELS = [5, 10, 15];
 
 // Tiempo por pregunta (debe coincidir con el timeout del backend)
-const QUESTION_TIME_SECONDS = 30;
+const QUESTION_TIME_SECONDS = 40;
 const ANSWER_FEEDBACK_MS = 2000;
 // Espera antes de ir a resultados al perder, para que suene completo el jingle de derrota.
 const LOSS_NAVIGATION_MS = 6000;
@@ -79,6 +79,8 @@ let gameState = {
   timerDeadline: null,
   timerQuestionId: null,
   timerExpired: false,
+  timerPaused: false,
+  timerRemainingMs: 0,
   timerTenSecondWarningShown: false,
   timerFiveSecondWarningShown: false,
   presenterMessageKey: 'welcome'
@@ -155,6 +157,8 @@ window.addEventListener('pageshow', (event) => {
 function startQuestionTimer(questionId) {
   gameState.timerQuestionId = questionId;
   gameState.timerExpired = false;
+  gameState.timerPaused = false;
+  gameState.timerRemainingMs = 0;
   gameState.timerTenSecondWarningShown = false;
   gameState.timerFiveSecondWarningShown = false;
   gameState.timerDeadline = Date.now() + QUESTION_TIME_SECONDS * 1000;
@@ -197,6 +201,23 @@ function updateQuestionTimer(secondsLeft) {
     gameState.timerTenSecondWarningShown = true;
     setPresenterMessage('urgent10');
   }
+}
+
+// Pausar el temporizador (al abrir Configuración) guardando el tiempo restante.
+function pauseQuestionTimer() {
+  if (gameState.timerInterval === null || gameState.answering || gameState.timerExpired || gameState.timerPaused) return;
+  gameState.timerPaused = true;
+  gameState.timerRemainingMs = Math.max(0, gameState.timerDeadline - Date.now());
+  window.clearInterval(gameState.timerInterval);
+  gameState.timerInterval = null;
+}
+
+// Reanudar el temporizador desde donde quedó pausado.
+function resumeQuestionTimer() {
+  if (!gameState.timerPaused) return;
+  gameState.timerPaused = false;
+  gameState.timerDeadline = Date.now() + gameState.timerRemainingMs;
+  scheduleQuestionTimer(gameState.timerQuestionId);
 }
 
 async function handleQuestionTimeout(questionId) {
@@ -964,7 +985,10 @@ function setupModalCloses() {
     btn.addEventListener('click', () => {
       const modalId = btn.getAttribute('data-close');
       const modal = document.getElementById(modalId);
-      if (modal) modal.classList.remove('active');
+      if (modal) {
+        modal.classList.remove('active');
+        if (modalId === 'modal-settings-game') resumeQuestionTimer();
+      }
     });
   });
 }
@@ -973,6 +997,7 @@ function setupSettingsInGame() {
   const btnSettings = document.getElementById('btn-settings-game');
   if (btnSettings) {
     btnSettings.addEventListener('click', () => {
+      pauseQuestionTimer();
       openModal('modal-settings-game');
       const current = getSelectedPresenter();
       document.querySelectorAll('#characters-selector-game .character-card').forEach(card => {
