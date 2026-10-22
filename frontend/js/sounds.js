@@ -7,6 +7,9 @@
     intro: 'assets/sounds/intro.mp3',
     question: 'assets/sounds/question.mp3'
   };
+  const CLOCK_MUSIC_SRC = 'assets/sounds/clock-music.mp3';
+
+  let clockAudio = null;
 
   function isMuted() {
     return localStorage.getItem('mute_audio') === '1';
@@ -23,5 +26,49 @@
     } catch (_) {}
   }
 
-  window.GameSounds = { play };
+  function ensureClockAudio() {
+    if (clockAudio) return clockAudio;
+    clockAudio = new Audio(CLOCK_MUSIC_SRC);
+    clockAudio.loop = true;
+    clockAudio.volume = 0.5;
+    clockAudio.preload = 'auto';
+    return clockAudio;
+  }
+
+  function preloadClockMusic() {
+    try {
+      ensureClockAudio();
+    } catch (_) {}
+  }
+
+  // Reproduce el jingle de la pregunta y, al terminar, arranca la música de fondo.
+  function playQuestion() {
+    if (isMuted()) return;
+    try {
+      const audio = new Audio(SOUNDS.question);
+      audio.volume = 0.9;
+      audio.addEventListener('ended', () => startClockMusic(), { once: true });
+      audio.play().catch(() => {});
+    } catch (_) {}
+  }
+
+  function startClockMusic() {
+    if (isMuted()) return;
+    try {
+      const audio = ensureClockAudio();
+      audio.currentTime = 0;
+      audio.play().catch(() => {});
+    } catch (_) {}
+  }
+
+  function stopClockMusic() {
+    if (clockAudio) {
+      try {
+        clockAudio.pause();
+        clockAudio.currentTime = 0;
+      } catch (_) {}
+    }
+  }
+
+  window.GameSounds = { play, playQuestion, startClockMusic, stopClockMusic, preloadClockMusic };
 })();

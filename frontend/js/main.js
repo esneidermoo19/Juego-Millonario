@@ -55,7 +55,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const updateSoundIcon = () => {
     if (!btnSound) return;
     const muted = localStorage.getItem('mute_audio') === '1';
-    if (window.ContestMusic) window.ContestMusic.setMuted(muted);
     if (soundIcon) soundIcon.textContent = muted ? '🔇' : '🔊';
     const isEnglish = window.getLanguage && window.getLanguage() === 'en';
     btnSound.setAttribute('aria-label', muted
@@ -122,9 +121,6 @@ document.addEventListener('DOMContentLoaded', () => {
         nameInput.focus();
         return;
       }
-
-      // Desbloquea AudioContext durante el gesto del usuario; la música sonará al abrir la partida.
-      if (window.ContestMusic) window.ContestMusic.prepareFromGesture();
 
       // Sonido de inicio del programa
       if (window.GameSounds) window.GameSounds.play('intro');

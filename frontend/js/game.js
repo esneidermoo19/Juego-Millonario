@@ -464,13 +464,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     return;
   }
 
-  if (localStorage.getItem('mute_audio') !== '1' && window.ContestMusic) {
-    window.ContestMusic.start();
-  }
-
   // 2. Elementos DOM
   const playerDisplay = document.getElementById('player-display');
   if (playerDisplay) playerDisplay.textContent = gameState.playerName;
+
+  // Precargar la música de fondo del reloj para que suene sin cortes
+  if (window.GameSounds) window.GameSounds.preloadClockMusic();
+
 
   // Aplicar personaje seleccionado
   applySelectedPresenter();
@@ -522,10 +522,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       const muted = localStorage.getItem('mute_audio') === '1';
       const nextMuted = !muted;
       localStorage.setItem('mute_audio', nextMuted ? '1' : '0');
-      if (window.ContestMusic) {
-        if (nextMuted) window.ContestMusic.setMuted(true);
-        else window.ContestMusic.start();
-      }
+      if (nextMuted && window.GameSounds) window.GameSounds.stopClockMusic();
       btnSoundGame.textContent = nextMuted ? '🔇' : '🔊';
     });
   }
@@ -643,8 +640,11 @@ function renderCurrentQuestion() {
     btn.disabled = false;
   });
 
-  // Sonido de presentación de la pregunta
-  if (window.GameSounds) window.GameSounds.play('question');
+  // Detener la música de fondo y reproducir el jingle de la pregunta
+  if (window.GameSounds) {
+    window.GameSounds.stopClockMusic();
+    window.GameSounds.playQuestion();
+  }
 }
 
 // Configurar Respuestas (A–D)
