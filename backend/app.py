@@ -43,7 +43,7 @@ def create_app(test_config: dict[str, object] | None = None) -> Flask:
         )
         return response
 
-    # Cabeceras de caché: HTML siempre revalida; assets y audio se cachean en el cliente.
+    # Cabeceras de caché: HTML y JS/CSS siempre revalidan; imágenes y audio se cachean.
     @app.after_request
     def _add_cache_headers(response):
         path = request.path
@@ -54,7 +54,8 @@ def create_app(test_config: dict[str, object] | None = None) -> Flask:
         elif path.endswith((".webp", ".png", ".jpg", ".jpeg", ".mp3", ".wav", ".ogg")):
             response.headers["Cache-Control"] = "public, max-age=86400"
         else:
-            response.headers["Cache-Control"] = "public, max-age=3600"
+            # JS/CSS: revalidar siempre para que los cambios se reflejen de inmediato.
+            response.headers["Cache-Control"] = "no-cache"
         return response
 
     # Serve index at root; static files are served from the configured static_folder.
