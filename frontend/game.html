@@ -285,6 +285,23 @@
     </footer>
   </div>
 
+  <!-- Overlay de Victoria (aparece al responder las 15 preguntas) -->
+  <div id="win-overlay" class="win-overlay" aria-hidden="true">
+    <div class="win-confetti" id="win-confetti" aria-hidden="true"></div>
+    <div class="win-content">
+      <div class="win-money-bag" aria-hidden="true">💰</div>
+      <div class="win-presenter-wrap">
+        <picture>
+          <source id="win-presenter-source" type="image/webp" srcset="assets/images/presentador-clasico.webp">
+          <img id="win-presenter-img" class="win-presenter-art" src="assets/images/presentador-clasico.png" alt="Presentador" decoding="async">
+        </picture>
+      </div>
+      <h2 id="win-title" class="win-title">¡ERES MILLONARIO!</h2>
+      <p id="win-message" class="win-message">¡Respondiste las 15 preguntas correctamente!</p>
+      <p id="win-prize" class="win-prize">$1.000.000</p>
+    </div>
+  </div>
+
   <script src="js/i18n.js"></script>
   <script src="js/utils.js"></script>
   <script src="js/sounds.js"></script>

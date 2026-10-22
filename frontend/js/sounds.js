@@ -47,9 +47,10 @@
     } catch (_) {}
   }
 
-  // Precarga los audios de la partida (pregunta, derrota y música de fondo).
+  // Precarga los audios de la partida (pregunta, derrota, victoria y música de fondo).
   function preloadGame() {
     try {
+      getSound('intro');
       getSound('question');
       getSound('fail');
       ensureClockAudio();
@@ -157,6 +158,12 @@
     play('fail');
   }
 
+  // Detiene la música de fondo y reproduce el tema «quien quiere ser millonario» al ganar.
+  function playWin() {
+    stopClockMusic();
+    play('intro', 1.0);
+  }
+
   window.GameSounds = {
     preloadIntro,
     preloadGame,
@@ -165,6 +172,7 @@
     playQuestion,
     startClockMusic,
     stopClockMusic,
-    playFail
+    playFail,
+    playWin
   };
 })();

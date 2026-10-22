@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session, sessionmaker
 
 from .models import Base, Game, Question
 from .services.prizes import prize_for_correct_answers
+from .services.ranking import reset_ranking
 
 
 STARTER_QUESTIONS = [
@@ -223,6 +224,10 @@ def init_database(app: Flask) -> None:
                     for field, value in values.items():
                         setattr(question, field, value)
             session.commit()
+
+        # Reiniciar el marcador en cada despliegue (marcador a cero).
+        with factory() as session:
+            reset_ranking(session)
     app.teardown_appcontext(_close_session)
 
 
