@@ -126,7 +126,10 @@ def init_database(app: Flask) -> None:
     engine = create_engine(database_url, connect_args=connect_args)
 
     if database_url.startswith("sqlite"):
-        event.listen(engine, "connect", _enable_sqlite_foreign_keys)
+        event.listen(engine, "connect", _configure_sqlite_connection)
+        # WAL permite lecturas y escrituras concurrentes (imprescindible con varios workers).
+        with engine.connect() as conn:
+            conn.exec_driver_sql("PRAGMA journal_mode=WAL")
 
     app.extensions["database_engine"] = engine
     app.extensions["database_session_factory"] = sessionmaker(
@@ -187,9 +190,11 @@ def _close_session(exception: BaseException | None = None) -> None:
         session.close()
 
 
-def _enable_sqlite_foreign_keys(
+def _configure_sqlite_connection(
     dbapi_connection: object, connection_record: object
 ) -> None:
     cursor = dbapi_connection.cursor()
     cursor.execute("PRAGMA foreign_keys=ON")
+    cursor.execute("PRAGMA busy_timeout=5000")
+    cursor.execute("PRAGMA synchronous=NORMAL")
     cursor.close()

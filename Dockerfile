@@ -3,7 +3,7 @@ FROM python:3.12-slim
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PORT=5000 \
-    WEB_CONCURRENCY=1 \
+    WEB_CONCURRENCY=4 \
     DATABASE_URL=sqlite:///backend/instance/millionaire.db
 
 WORKDIR /app

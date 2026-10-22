@@ -59,7 +59,7 @@ const SAFE_LEVELS = [5, 10, 15];
 const QUESTION_TIME_SECONDS = 30;
 const ANSWER_FEEDBACK_MS = 2000;
 // Espera antes de ir a resultados al perder, para que suene completo el jingle de derrota.
-const LOSS_NAVIGATION_MS = 8000;
+const LOSS_NAVIGATION_MS = 6000;
 
 // Estado Principal de Partida
 let gameState = {
