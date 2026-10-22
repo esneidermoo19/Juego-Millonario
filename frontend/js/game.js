@@ -58,6 +58,8 @@ const SAFE_LEVELS = [5, 10, 15];
 // Tiempo por pregunta (debe coincidir con el timeout del backend)
 const QUESTION_TIME_SECONDS = 30;
 const ANSWER_FEEDBACK_MS = 2000;
+// Espera antes de ir a resultados al perder, para que suene completo el jingle de derrota.
+const LOSS_NAVIGATION_MS = 8000;
 
 // Estado Principal de Partida
 let gameState = {
@@ -212,8 +214,8 @@ async function handleQuestionTimeout(questionId) {
   }
 }
 
-async function showTimeoutLoss(prize) {
-  const failPromise = window.GameSounds ? window.GameSounds.playFail() : Promise.resolve();
+function showTimeoutLoss(prize) {
+  if (window.GameSounds) window.GameSounds.playFail();
   const finalPrize = Math.max(Number(prize) || 0, Number(gameState.currentPrize) || 0);
   sessionStorage.setItem('game_result', JSON.stringify({
     type: 'loss',
@@ -223,12 +225,11 @@ async function showTimeoutLoss(prize) {
     cleared: gameState.questionIndex + 1,
     correctlyAnswered: gameState.questionIndex
   }));
-  await failPromise;
-  window.location.href = 'results.html';
+  setTimeout(() => { window.location.href = 'results.html'; }, LOSS_NAVIGATION_MS);
 }
 
-async function showLossResult(prize) {
-  const failPromise = window.GameSounds ? window.GameSounds.playFail() : Promise.resolve();
+function showLossResult(prize) {
+  if (window.GameSounds) window.GameSounds.playFail();
   const finalPrize = Math.max(Number(prize) || 0, Number(gameState.currentPrize) || 0);
   sessionStorage.setItem('game_result', JSON.stringify({
     type: 'loss',
@@ -237,8 +238,7 @@ async function showLossResult(prize) {
     cleared: gameState.questionIndex + 1,
     correctlyAnswered: gameState.questionIndex
   }));
-  await failPromise;
-  window.location.href = 'results.html';
+  setTimeout(() => { window.location.href = 'results.html'; }, LOSS_NAVIGATION_MS);
 }
 
 function showAnswerFeedback(optionButtons, correctLetter) {
