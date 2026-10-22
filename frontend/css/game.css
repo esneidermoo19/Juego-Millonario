@@ -807,25 +807,49 @@
    ANIMACIONES DE COMODINES
    ═══════════════════════════════════════════════════════════ */
 
-/* Escaneo del 50:50 (parpadeo antes de eliminar las opciones) */
+/* Escaneo del 50:50 (parpadeo + brillo antes de eliminar las opciones) */
 .option-btn.scanning-5050 {
-  animation: scan-blink 0.4s ease-in-out infinite;
-  box-shadow: 0 0 20px rgba(53, 224, 255, 0.85);
+  animation: scan-blink 0.45s ease-in-out infinite;
+  box-shadow: 0 0 24px rgba(53, 224, 255, 0.9), 0 0 46px rgba(53, 224, 255, 0.45);
   border-color: #35e0ff;
 }
 
 @keyframes scan-blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.2; }
+  0%, 100% { opacity: 1; filter: brightness(1.25); }
+  50% { opacity: 0.12; filter: brightness(0.55); }
 }
 
-/* Llamada al amigo (el avatar vibra mientras «llama») */
+/* Llamada al amigo (avatar vibra + teléfono pulsante) */
 .modal-friend.calling .friend-avatar {
+  position: relative;
   animation: phone-ring 0.5s ease-in-out infinite;
 }
 
+.modal-friend.calling .friend-avatar::after {
+  content: '📞';
+  position: absolute;
+  top: -0.5rem;
+  right: -0.6rem;
+  font-size: 1.7rem;
+  animation: ring-pulse 0.8s ease-in-out infinite;
+}
+
+.modal-friend.calling .speech-bubble {
+  animation: bubble-glow 0.8s ease-in-out infinite;
+}
+
 @keyframes phone-ring {
-  0%, 100% { transform: rotate(0deg); }
-  25% { transform: rotate(-14deg); }
-  75% { transform: rotate(14deg); }
+  0%, 100% { transform: rotate(0deg) scale(1); }
+  25% { transform: rotate(-15deg) scale(1.06); }
+  75% { transform: rotate(15deg) scale(1.06); }
+}
+
+@keyframes ring-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.35); opacity: 0.55; }
+}
+
+@keyframes bubble-glow {
+  0%, 100% { box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4); }
+  50% { box-shadow: 0 8px 30px rgba(53, 224, 255, 0.45); }
 }
