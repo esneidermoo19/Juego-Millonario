@@ -72,11 +72,13 @@
         const finish = () => {
           if (settled) return;
           settled = true;
+          audio.removeEventListener('ended', finish);
           resolve();
         };
-        audio.addEventListener('ended', finish, { once: true });
-        const dur = isFinite(audio.duration) && audio.duration > 0 ? audio.duration : 0;
-        window.setTimeout(finish, (dur || 5) * 1000 + 150);
+        // 'ended' es la señal real de que terminó; el temporizador solo evita quedarse
+        // colgado si el audio falla (no corta una reproducción normal).
+        audio.addEventListener('ended', finish);
+        window.setTimeout(finish, 20000);
         audio.play().catch(finish);
       });
     } catch (_) {
