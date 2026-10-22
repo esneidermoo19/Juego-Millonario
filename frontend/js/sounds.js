@@ -60,25 +60,36 @@
     } catch (_) {}
   }
 
-  // Reproduce un audio y resuelve la promesa cuando termina de sonar (con respaldo).
-  function playAndWait(name, volume = 0.9) {
+  // Reproduce un audio (repetido `loops` veces) y resuelve la promesa cuando termina.
+  function playAndWait(name, volume = 0.9, loops = 1) {
     if (isMuted()) return Promise.resolve();
     try {
       const audio = getSound(name);
+      audio.loop = false;
       audio.volume = volume;
       audio.currentTime = 0;
       return new Promise((resolve) => {
         let settled = false;
+        let remaining = Math.max(1, loops);
         const finish = () => {
           if (settled) return;
           settled = true;
-          audio.removeEventListener('ended', finish);
+          audio.removeEventListener('ended', onEnded);
           resolve();
         };
-        // 'ended' es la señal real de que terminó; el temporizador solo evita quedarse
-        // colgado si el audio falla (no corta una reproducción normal).
-        audio.addEventListener('ended', finish);
-        window.setTimeout(finish, 20000);
+        const onEnded = () => {
+          remaining -= 1;
+          if (remaining <= 0) {
+            finish();
+          } else {
+            audio.currentTime = 0;
+            audio.play().catch(finish);
+          }
+        };
+        // 'ended' es la señal real de cada reproducción; el temporizador solo evita
+        // quedarse colgado si el audio falla (no corta una reproducción normal).
+        audio.addEventListener('ended', onEnded);
+        window.setTimeout(finish, 30000);
         audio.play().catch(finish);
       });
     } catch (_) {
@@ -145,10 +156,10 @@
     } catch (_) {}
   }
 
-  // Detiene la música de fondo y reproduce el jingle de derrota hasta el final.
+  // Detiene la música de fondo y reproduce el jingle de derrota varias veces.
   function playFail() {
     stopClockMusic();
-    return playAndWait('fail');
+    return playAndWait('fail', 0.9, 3);
   }
 
   window.GameSounds = {
