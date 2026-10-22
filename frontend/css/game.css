@@ -76,13 +76,20 @@
   min-width: 0;
 }
 
-/* ── Fila superior: temporizador + comodines ────────────── */
+/* ── Fila superior: temporizador a la izquierda + comodines centrados ── */
 .arena-top-row {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  justify-content: space-between;
   gap: 1rem;
-  flex-wrap: wrap;
+}
+
+.arena-top-row .timer-wrap {
+  justify-self: start;
+}
+
+.arena-top-row .lifelines-panel {
+  justify-self: center;
 }
 
 /* Temporizador circular (cuenta regresiva) */
@@ -369,20 +376,19 @@
      personaje hacia la derecha, sin envolver al personaje.
    ═════════════════════════════════════════════════════════ */
 
+/* Va encima de la pregunta: el personaje y su comentario quedan siempre visibles. */
 .presenter-zone {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   gap: 0;
-  min-height: 200px;
-  padding-top: 0.5rem;
   position: relative;
 }
 
 /* Contenedor del personaje — sin marco, sin fondo, figura limpia recortada */
 .presenter-art-wrap {
   position: relative;
-  width: clamp(160px, 22vw, 250px);
-  height: clamp(230px, 30vw, 340px);
+  width: clamp(110px, 13vw, 160px);
+  height: clamp(150px, 17vw, 210px);
   flex-shrink: 0;
   pointer-events: none;
   z-index: 2;
@@ -414,11 +420,8 @@
    ────────────────────────────────────────────────────────── */
 .presenter-bubble {
   position: relative;
-  flex: 0 1 480px;
-  /* Altura alineada con la cabeza del personaje */
-  margin-bottom: auto;
-  margin-top: 1.5rem;
-  margin-left: 10px;
+  flex: 0 1 560px;
+  margin-left: 14px;
   background: #ffffff;
   color: #091124;
   padding: 1.15rem 1.45rem;
@@ -443,7 +446,7 @@
   content: '';
   position: absolute;
   left: -14px;
-  top: 32px;
+  top: calc(50% - 10px);
   border-width: 10px 14px 10px 0;
   border-style: solid;
   border-color: transparent #ffffff transparent transparent;
@@ -658,8 +661,12 @@
   }
 
   .arena-top-row {
-    flex-direction: column;
-    align-items: stretch;
+    grid-template-columns: 1fr;
+    justify-items: center;
+  }
+
+  .arena-top-row .timer-wrap {
+    justify-self: center;
   }
 
   .lifelines-panel {
@@ -667,28 +674,16 @@
     flex-wrap: wrap;
   }
 
-  .presenter-zone {
-    min-height: 0;
-    align-items: flex-end;
-    gap: 0;
-    flex-direction: column-reverse;
-    align-items: stretch;
-  }
-
   .presenter-art-wrap {
-    width: 130px;
-    height: 175px;
-    position: absolute;
-    bottom: 0;
-    left: 0;
+    width: 90px;
+    height: 125px;
   }
 
   .presenter-bubble {
-    margin-left: 110px;
-    margin-bottom: 0.5rem;
+    margin-left: 10px;
     padding: 0.85rem 0.95rem;
     font-size: 0.88rem;
-    flex-basis: auto;
+    flex: 1 1 auto;
   }
 
   .question-hex-inner {

@@ -53,3 +53,28 @@ El archivo `compose.yaml` construye el contenedor, sirve el frontend y la API de
 La imagen excluye la base local y los archivos `.env`; si el volumen está vacío, el backend crea el esquema e inserta preguntas iniciales al arrancar. Configura secretos desde las variables de entorno de Coolify. El archivo `.env.example` solo contiene la URL local de SQLite.
 
 Coolify conecta su proxy al puerto expuesto del servicio; no hace falta publicar el puerto del contenedor directamente en el host.
+
+## Pruebas
+
+Las pruebas del backend están en `backend/tests/` y usan una base de datos temporal, así que no modifican la base real. Desde la carpeta del proyecto:
+
+```bash
+.venv/bin/python -m unittest discover -s backend/tests -t .
+```
+
+En Windows usa `.venv\Scripts\python.exe` en lugar de `.venv/bin/python`.
+
+## Aviso legal
+
+Este es un proyecto **educativo y sin fines de lucro**, creado con fines de aprendizaje. No se vende, no tiene publicidad y no genera ingresos.
+
+- **Sin relación oficial:** este juego no está afiliado, patrocinado ni aprobado por ninguna de las personas, empresas o marcas que aparecen o se mencionan en él.
+- **Formato del concurso:** «¿Quién quiere ser millonario?» (*Who Wants to Be a Millionaire?*) es una marca y un formato de televisión de sus respectivos dueños. Este proyecto solo se inspira en él; no usa su música ni sus logotipos oficiales.
+- **Personajes:** los presentadores son caricaturas o referencias usadas como homenaje. Sus nombres e imágenes pertenecen a sus titulares:
+  - Cristiano Ronaldo, «CR7» y James Rodríguez: derechos de imagen de cada persona.
+  - Terminator: sus respectivos estudios de cine.
+  - Master Chief y Halo: Microsoft.
+- **Marcas en las ilustraciones:** los logotipos que aparecen en las camisetas, como Nike o los escudos de las federaciones de fútbol, son marcas registradas de sus dueños.
+- **Voces:** las voces de los presentadores son sintéticas, generadas con [Piper](https://github.com/rhasspy/piper) o espeak-ng. No imitan ni reproducen la voz real de ninguna persona.
+
+Si eres titular de alguno de estos derechos y quieres que se retire algún contenido, abre un *issue* en este repositorio y se retirará.

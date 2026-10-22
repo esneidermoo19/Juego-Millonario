@@ -11,6 +11,7 @@ from .routes.lifelines import lifelines_bp
 from .routes.players import players_bp
 from .routes.questions import questions_bp
 from .routes.ranking import ranking_bp
+from .routes.tts import tts_bp
 
 load_dotenv()
 
@@ -46,6 +47,7 @@ def create_app(test_config: dict[str, object] | None = None) -> Flask:
     app.register_blueprint(questions_bp, url_prefix="/api/questions")
     app.register_blueprint(lifelines_bp, url_prefix="/api/lifelines")
     app.register_blueprint(ranking_bp, url_prefix="/api/ranking")
+    app.register_blueprint(tts_bp, url_prefix="/api/tts")
 
     @app.errorhandler(400)
     @app.errorhandler(404)

@@ -79,6 +79,19 @@
           </div>
         </div>
 
+        <!-- Presentador 2D recortado transparente + Bocadillo de Diálogo -->
+        <div class="presenter-zone">
+          <div class="presenter-art-wrap" aria-hidden="true">
+            <picture class="presenter-art-picture">
+              <source type="image/webp" srcset="assets/images/presentador-clasico.webp">
+              <img class="presenter-art" src="assets/images/presentador-clasico.png" alt="Presentador del concurso" decoding="async">
+            </picture>
+          </div>
+          <div class="presenter-bubble" role="status" aria-live="polite">
+            <p id="presenter-message">¡Bienvenido al concurso! Responde las 15 preguntas.</p>
+          </div>
+        </div>
+
         <!-- Panel de Pregunta (biselado hexagonal) -->
         <div class="question-card anim-fade-in" id="question-card">
           <div class="hex-frame">
@@ -122,19 +135,6 @@
               </span>
             </span>
           </button>
-        </div>
-
-        <!-- Presentador 2D recortado transparente + Bocadillo de Diálogo -->
-        <div class="presenter-zone">
-          <div class="presenter-art-wrap" aria-hidden="true">
-            <picture class="presenter-art-picture">
-              <source type="image/webp" srcset="assets/images/presentador-clasico.webp">
-              <img class="presenter-art" src="assets/images/presentador-clasico.png" alt="Presentador del concurso" loading="lazy" decoding="async" fetchpriority="low">
-            </picture>
-          </div>
-          <div class="presenter-bubble" role="status" aria-live="polite">
-            <p id="presenter-message">¡Bienvenido al concurso! Responde las 15 preguntas.</p>
-          </div>
         </div>
       </div>
 

@@ -90,7 +90,8 @@ document.addEventListener('DOMContentLoaded', () => {
         clasico: 'El Anfitrión Clásico',
         terminator: 'Terminator T-800',
         masterchief: 'Master Chief (Spartan 117)',
-        james: 'James Rodríguez'
+        james: 'James Rodríguez',
+        cr7: 'Cristiano Ronaldo (CR7)'
       };
       showToast(`Presentador: ${names[selected] || selected}`, 'info');
     });

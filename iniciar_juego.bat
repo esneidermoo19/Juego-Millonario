@@ -16,6 +16,13 @@ if not exist ".venv\Scripts\python.exe" (
 .venv\Scripts\python.exe -m pip install -r backend\requirements.txt
 if errorlevel 1 goto :error
 
+rem Voces de los presentadores (solo la primera vez). Si falla, el juego usa una voz de respaldo.
+if not exist "backend\tts_voices\en_US-ryan-medium.onnx" (
+    echo Descargando voces de los presentadores, ~126 MB...
+    .venv\Scripts\python.exe -m piper.download_voices --data-dir backend\tts_voices es_MX-ald-medium en_US-ryan-medium
+    if errorlevel 1 echo No se pudieron descargar las voces; se usara la voz de respaldo.
+)
+
 start "" "http://localhost:5000"
 .venv\Scripts\python.exe -m backend.app
 pause
