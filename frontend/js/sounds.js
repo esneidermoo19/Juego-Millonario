@@ -48,14 +48,14 @@
     } catch (_) {}
   }
 
-  // Precarga los audios de la partida (pregunta, derrota, victoria, llamada y música de fondo).
+  // Precarga los audios ligeros de la partida (pregunta, derrota, victoria y llamada).
+  // La música de fondo (pesada) se carga de forma diferida al empezar la primera pregunta.
   function preloadGame() {
     try {
       getSound('intro');
       getSound('question');
       getSound('fail');
       getSound('ring');
-      ensureClockAudio();
     } catch (_) {}
   }
 
@@ -131,6 +131,9 @@
   function playQuestion() {
     if (isMuted()) return;
     try {
+      // Empieza a cargar la música de fondo de forma diferida (mientras suena el jingle).
+      ensureClockAudio();
+
       const audio = getSound('question');
       audio.volume = 0.9;
       audio.currentTime = 0;

@@ -12,6 +12,11 @@ from .services.ranking import reset_ranking
 
 
 STARTER_QUESTIONS = [
+    ("¿Qué usamos para beber agua?", "Cuchara", "Vaso", "Tenedor", "Plato", "B"),
+    ("¿Dónde duermen los pájaros?", "Nido", "Casa", "Cueva", "Establo", "A"),
+    ("¿Qué instrumento se toca golpeando?", "Flauta", "Guitarra", "Tambor", "Piano", "C"),
+    ("¿Qué vehículo vuela por el cielo?", "Barco", "Tren", "Carro", "Avión", "D"),
+    ("¿Qué alimento es un postre dulce?", "Sopa", "Pastel", "Ensalada", "Arroz", "B"),
     ("¿De qué color es la leche?", "Rojo", "Blanco", "Verde", "Morado", "B"),
     ("¿Qué animal dice «guau»?", "Gato", "Vaca", "Perro", "Pato", "C"),
     ("¿Cuántas ruedas tiene un carro?", "Dos", "Tres", "Cuatro", "Cinco", "C"),
@@ -91,6 +96,11 @@ STARTER_QUESTIONS = [
     ("¿Qué deporte se juega con una raqueta y una pelota?", "Fútbol", "Tenis", "Béisbol", "Golf", "B"),
     ("¿Qué animal es conocido por su caparazón?", "Perro", "Gato", "Tortuga", "Conejo", "C"),
     ("¿Qué instrumento musical se toca soplando?", "Guitarra", "Batería", "Flauta", "Piano", "C"),
+    ("¿Cuál es el país más grande del mundo por territorio?", "Rusia", "Canadá", "China", "Estados Unidos", "A"),
+    ("¿Qué científico formuló la ley de la gravedad?", "Einstein", "Newton", "Galileo", "Tesla", "B"),
+    ("¿Cuántos colores tiene el arcoíris?", "Cinco", "Seis", "Siete", "Ocho", "C"),
+    ("¿Cuál es el animal terrestre más rápido?", "León", "Guepardo", "Caballo", "Elefante", "B"),
+    ("¿Cuál es la capital de Francia?", "Londres", "París", "Roma", "Berlín", "B"),
     ("¿Quién es el dios del trueno en la mitología nórdica?", "Odín", "Balder", "Loki", "Thor", "D"),
     ("¿Quién escribió «La metamorfosis», donde Gregorio Samsa se convierte en insecto?", "Franz Kafka", "Albert Camus", "Hermann Hesse", "Thomas Mann", "A"),
     ("¿Qué ciudad es conocida como la «Ciudad Eterna»?", "París", "Roma", "Jerusalén", "Atenas", "B"),
@@ -162,6 +172,11 @@ STARTER_QUESTIONS = [
     ("¿En qué obra de Shakespeare aparece «Ser o no ser»?", "Macbeth", "Hamlet", "Otelo", "Romeo y Julieta", "B"),
     ("¿Cuál es la capital de Australia?", "Sídney", "Melbourne", "Canberra", "Perth", "C"),
     ("¿Qué océano separa América de Europa?", "Pacífico", "Índico", "Atlántico", "Ártico", "C"),
+    ("¿Quién escribió «Cien años de soledad»?", "Gabriel García Márquez", "Julio Cortázar", "Jorge Luis Borges", "Pablo Neruda", "A"),
+    ("¿Cuál es el país más pequeño del mundo?", "Mónaco", "Vaticano", "San Marino", "Liechtenstein", "B"),
+    ("¿Qué filósofo griego fundó la Academia de Atenas?", "Sócrates", "Platón", "Aristóteles", "Pitágoras", "B"),
+    ("¿Qué científico propuso la teoría heliocéntrica?", "Copérnico", "Newton", "Kepler", "Galileo", "A"),
+    ("¿Cuál es el desierto más grande del mundo?", "Gobi", "Sahara", "Atacama", "Mojave", "B"),
 ]
 
 

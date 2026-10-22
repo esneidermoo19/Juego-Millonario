@@ -1,6 +1,11 @@
 """English text for the built-in question bank, indexed by difficulty."""
 
 ENGLISH_QUESTIONS = [
+    ("What do we use to drink water?", ("Spoon", "Glass", "Fork", "Plate")),
+    ("Where do birds sleep?", ("Nest", "House", "Cave", "Stable")),
+    ("Which instrument is played by hitting it?", ("Flute", "Guitar", "Drum", "Piano")),
+    ("Which vehicle flies in the sky?", ("Boat", "Train", "Car", "Airplane")),
+    ("Which food is a sweet dessert?", ("Soup", "Cake", "Salad", "Rice")),
     ("What color is milk?", ("Red", "White", "Green", "Purple")),
     ("Which animal says \"woof\"?", ("Cat", "Cow", "Dog", "Duck")),
     ("How many wheels does a car have?", ("Two", "Three", "Four", "Five")),
@@ -80,6 +85,11 @@ ENGLISH_QUESTIONS = [
     ("Which sport is played with a racket and a ball?", ("Soccer", "Tennis", "Baseball", "Golf")),
     ("Which animal is known for its shell?", ("Dog", "Cat", "Turtle", "Rabbit")),
     ("Which musical instrument is played by blowing?", ("Guitar", "Drums", "Flute", "Piano")),
+    ("What is the largest country in the world by area?", ("Russia", "Canada", "China", "United States")),
+    ("Which scientist formulated the law of gravity?", ("Einstein", "Newton", "Galileo", "Tesla")),
+    ("How many colors are in a rainbow?", ("Five", "Six", "Seven", "Eight")),
+    ("What is the fastest land animal?", ("Lion", "Cheetah", "Horse", "Elephant")),
+    ("What is the capital of France?", ("London", "Paris", "Rome", "Berlin")),
     ("Who is the god of thunder in Norse mythology?", ("Odin", "Baldr", "Loki", "Thor")),
     ("Who wrote \"The Metamorphosis\", in which Gregor Samsa turns into an insect?", ("Franz Kafka", "Albert Camus", "Hermann Hesse", "Thomas Mann")),
     ("Which city is known as the \"Eternal City\"?", ("Paris", "Rome", "Jerusalem", "Athens")),
@@ -151,6 +161,11 @@ ENGLISH_QUESTIONS = [
     ("In which Shakespeare play does \"To be or not to be\" appear?", ("Macbeth", "Hamlet", "Othello", "Romeo and Juliet")),
     ("What is the capital of Australia?", ("Sydney", "Melbourne", "Canberra", "Perth")),
     ("Which ocean separates America from Europe?", ("Pacific", "Indian", "Atlantic", "Arctic")),
+    ("Who wrote \"One Hundred Years of Solitude\"?", ("Gabriel García Márquez", "Julio Cortázar", "Jorge Luis Borges", "Pablo Neruda")),
+    ("What is the smallest country in the world?", ("Monaco", "Vatican City", "San Marino", "Liechtenstein")),
+    ("Which Greek philosopher founded the Academy of Athens?", ("Socrates", "Plato", "Aristotle", "Pythagoras")),
+    ("Which scientist proposed the heliocentric theory?", ("Copernicus", "Newton", "Kepler", "Galileo")),
+    ("What is the largest desert in the world?", ("Gobi", "Sahara", "Atacama", "Mojave")),
 ]
 
 
