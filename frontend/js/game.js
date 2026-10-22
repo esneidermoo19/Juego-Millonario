@@ -201,6 +201,7 @@ async function handleQuestionTimeout(questionId) {
   if (gameState.answering || gameState.timerExpired || gameState.questions[gameState.questionIndex]?.id !== questionId) return;
   gameState.timerExpired = true;
   gameState.answering = true;
+  if (window.GameSounds) window.GameSounds.stopClockMusic();
   setPresenterMessage('timeout');
   try {
     const result = await window.api.timeout(gameState.gameId, questionId);
@@ -510,8 +511,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   const playerDisplay = document.getElementById('player-display');
   if (playerDisplay) playerDisplay.textContent = gameState.playerName;
 
-  // Precargar la música de fondo del reloj para que suene sin cortes
-  if (window.GameSounds) window.GameSounds.preloadClockMusic();
+  // Precargar los audios para que suenen sin cortes
+  if (window.GameSounds) window.GameSounds.preload();
 
 
   // Aplicar personaje seleccionado
@@ -707,6 +708,7 @@ function setupOptionListeners() {
       window.clearInterval(gameState.timerInterval);
       gameState.timerInterval = null;
       SoundFX.click();
+      if (window.GameSounds) window.GameSounds.stopClockMusic();
 
       const selectedLetter = btn.getAttribute('data-option');
       btn.classList.add('selected');
