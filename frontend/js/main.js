@@ -4,8 +4,8 @@
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Precargar audios para que el intro suene al instante al pulsar COMENZAR
-  if (window.GameSounds) window.GameSounds.preload();
+  // Precargar solo el intro para que suene al instante al pulsar COMENZAR
+  if (window.GameSounds) window.GameSounds.preloadIntro();
 
   const form = document.getElementById('start-game-form');
   const nameInput = document.getElementById('player-name');

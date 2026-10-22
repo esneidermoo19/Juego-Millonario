@@ -40,10 +40,18 @@
     return clockAudio;
   }
 
-  // Precarga todos los audios (y calienta la caché del navegador) para que suenen al instante.
-  function preload() {
+  // Precarga solo el intro (pantalla de inicio) para no descargar audio innecesario.
+  function preloadIntro() {
     try {
-      Object.keys(SOUNDS).forEach(getSound);
+      getSound('intro');
+    } catch (_) {}
+  }
+
+  // Precarga los audios de la partida (pregunta, derrota y música de fondo).
+  function preloadGame() {
+    try {
+      getSound('question');
+      getSound('fail');
       ensureClockAudio();
     } catch (_) {}
   }
@@ -150,7 +158,8 @@
   }
 
   window.GameSounds = {
-    preload,
+    preloadIntro,
+    preloadGame,
     play,
     playIntro,
     playQuestion,

@@ -513,8 +513,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   const playerDisplay = document.getElementById('player-display');
   if (playerDisplay) playerDisplay.textContent = gameState.playerName;
 
-  // Precargar los audios para que suenen sin cortes
-  if (window.GameSounds) window.GameSounds.preload();
+  // Precargar los audios de la partida para que suenen sin cortes
+  if (window.GameSounds) window.GameSounds.preloadGame();
 
 
   // Aplicar personaje seleccionado
