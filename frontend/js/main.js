@@ -127,6 +127,9 @@ document.addEventListener('DOMContentLoaded', () => {
       // Desbloquea AudioContext durante el gesto del usuario; la música sonará al abrir la partida.
       if (window.ContestMusic) window.ContestMusic.prepareFromGesture();
 
+      // Sonido de inicio del programa
+      if (window.GameSounds) window.GameSounds.play('intro');
+
       try {
         btnPlay.disabled = true;
         btnPlay.textContent = '⏳ Creando partida...';
